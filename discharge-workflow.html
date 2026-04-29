@@ -1433,6 +1433,13 @@
 </head>
 <body>
 
+  <script>
+    // Password protection check
+    if (sessionStorage.getItem('prototype-access') !== 'granted') {
+      window.location.href = 'index.html';
+    }
+  </script>
+
   <div class="prototype-banner">Prototype only — Adapt to your repo's patterns, rules, and design system before implementation</div>
 
   <!-- ═══ TOP NAV BAR ═══ -->

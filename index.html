@@ -25,6 +25,104 @@
       padding: 24px;
     }
 
+    /* Password overlay */
+    .password-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--wsc-system-surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+
+    .password-overlay.hidden {
+      display: none;
+    }
+
+    .password-card {
+      background: var(--wsc-system-surface);
+      border: 1px solid var(--wsc-system-outline);
+      border-radius: var(--wsc-border-radius-lg);
+      padding: 48px;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: var(--wsc-shadow-lg);
+    }
+
+    .password-card h2 {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--wsc-system-on-surface);
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .password-card p {
+      font-size: 14px;
+      color: var(--wsc-system-on-surface-variant);
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .password-input-wrapper {
+      position: relative;
+      margin-bottom: 8px;
+    }
+
+    .password-input {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 16px;
+      border: 1px solid var(--wsc-system-outline);
+      border-radius: var(--wsc-border-radius-md);
+      background: var(--wsc-system-surface);
+      color: var(--wsc-system-on-surface);
+      font-family: inherit;
+    }
+
+    .password-input:focus {
+      outline: none;
+      border-color: var(--wsc-system-primary);
+      box-shadow: 0 0 0 2px var(--wsc-system-primary-container);
+    }
+
+    .password-error {
+      color: var(--wsc-system-error);
+      font-size: 13px;
+      margin-top: 8px;
+      display: none;
+    }
+
+    .password-error.show {
+      display: block;
+    }
+
+    .password-submit {
+      width: 100%;
+      padding: 12px 24px;
+      background: var(--wsc-system-primary);
+      color: var(--wsc-system-on-primary);
+      border: none;
+      border-radius: var(--wsc-border-radius-md);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 16px;
+      transition: background var(--wsc-transition-fast);
+    }
+
+    .password-submit:hover {
+      background: var(--wsc-system-primary-hover);
+    }
+
+    .password-submit:active {
+      background: var(--wsc-system-primary-filled-pressed);
+    }
+
     .container {
       max-width: 800px;
       width: 100%;
@@ -115,6 +213,28 @@
   </style>
 </head>
 <body>
+  <!-- Password Protection -->
+  <div class="password-overlay" id="password-overlay">
+    <div class="password-card">
+      <h2>Protected Prototype</h2>
+      <p>Enter the password to view the WCTS Patient Discharge prototypes.</p>
+      <form id="password-form" onsubmit="checkPassword(event)">
+        <div class="password-input-wrapper">
+          <input
+            type="password"
+            id="password-input"
+            class="password-input"
+            placeholder="Enter password"
+            autocomplete="off"
+            autofocus
+          >
+        </div>
+        <div class="password-error" id="password-error">Incorrect password. Please try again.</div>
+        <button type="submit" class="password-submit">Access Prototypes</button>
+      </form>
+    </div>
+  </div>
+
   <div class="container">
     <div class="header">
       <h1>WCTS Patient Discharge Prototypes</h1>
@@ -145,5 +265,34 @@
       <p>Built with Claude Code • WellSky CareTend</p>
     </div>
   </div>
+
+  <script>
+    // Password protection
+    const CORRECT_PASSWORD = 'wellsky2026';
+
+    function checkPassword(event) {
+      event.preventDefault();
+      const input = document.getElementById('password-input');
+      const error = document.getElementById('password-error');
+      const overlay = document.getElementById('password-overlay');
+
+      if (input.value === CORRECT_PASSWORD) {
+        sessionStorage.setItem('prototype-access', 'granted');
+        overlay.classList.add('hidden');
+        error.classList.remove('show');
+      } else {
+        error.classList.add('show');
+        input.value = '';
+        input.focus();
+      }
+    }
+
+    // Check if already authenticated
+    window.addEventListener('DOMContentLoaded', function() {
+      if (sessionStorage.getItem('prototype-access') === 'granted') {
+        document.getElementById('password-overlay').classList.add('hidden');
+      }
+    });
+  </script>
 </body>
 </html>
