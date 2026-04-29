@@ -158,6 +158,12 @@
       padding-bottom: 80px;
     }
 
+    .content-header {
+      padding: var(--wcts-content-padding);
+      padding-bottom: 0;
+      flex-shrink: 0;
+    }
+
     .content-area {
       padding: var(--wcts-content-padding);
       max-width: 1200px;
@@ -192,7 +198,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: var(--wsc-system-surface-container-low);
+      background: var(--wsc-system-primary-container);
       border: 1px solid var(--wsc-system-outline);
       border-radius: var(--wsc-border-radius-md);
       padding: 12px 20px;
@@ -246,6 +252,7 @@
       font-weight: var(--wcts-page-title-weight);
       color: var(--wsc-system-on-primary-container);
       margin-bottom: 24px;
+      margin-top: 0;
     }
 
     /* ═══ CARD ═══ */
@@ -724,6 +731,8 @@
 
       .form-footer { left: 0; }
 
+      .content-header { padding: 12px 16px 0; }
+
       .entity-banner { padding: 12px 16px; align-items: center; }
       .entity-divider { display: none; }
       .entity-info {
@@ -741,7 +750,7 @@
         gap: 8px;
       }
 
-      .content-area { padding: 12px 16px; }
+      .content-area { padding: 0 16px 12px; }
       .page-title { font-size: 18px; }
 
       .prototype-banner {
@@ -850,8 +859,9 @@
 
     <!-- ═══ MAIN CONTENT ═══ -->
     <main class="main-content">
-      <div class="content-area">
 
+      <!-- ═══ CONTENT HEADER ═══ -->
+      <div class="content-header">
         <!-- Breadcrumb -->
         <nav class="breadcrumb">
           <a href="#">Home</a>
@@ -881,7 +891,9 @@
             </div>
           </div>
         </div>
+      </div>
 
+      <div class="content-area">
         <!-- Page Title -->
         <h1 class="page-title">Progress Note</h1>
 
