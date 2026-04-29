@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Progress Note Review — Patient Discharge</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="tokens.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      font-size: var(--wsc-system-typography-body-2-font-size);
+      font-weight: var(--wsc-system-typography-body-2-font-weight);
+      line-height: var(--wsc-system-typography-body-2-line-height);
+      color: var(--wsc-system-on-surface);
+      background: var(--wsc-system-background);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ═══ TOP NAV BAR ═══ */
+    .topnav {
+      height: var(--wcts-topnav-height);
+      background: var(--wsc-system-surface);
+      color: var(--wsc-system-on-surface);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--wsc-system-spacer-rem-md);
+      position: fixed;
+      top: 22px;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      border-bottom: 1px solid var(--wsc-system-outline);
+    }
+
+    .topnav-left { display: flex; align-items: center; }
+    .topnav-logo { display: flex; align-items: center; }
+    .topnav-logo svg { height: 20px; width: auto; }
+
+    .topnav-right {
+      display: flex;
+      align-items: center;
+      gap: var(--wsc-system-spacer-rem-2xs);
+    }
+
+    .topnav-links { display: flex; align-items: center; gap: 0; }
+
+    .topnav-link {
+      padding: 0 var(--wsc-system-spacer-rem-sm);
+      color: var(--wsc-system-on-surface);
+      text-decoration: none;
+      font-size: var(--wsc-system-typography-body-2-font-size);
+      font-weight: var(--wsc-system-typography-body-1-font-weight);
+      cursor: pointer;
+      transition: color var(--wsc-transition-fast);
+      white-space: nowrap;
+      height: var(--wcts-topnav-height);
+      display: flex;
+      align-items: center;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+    }
+
+    .topnav-link:hover { color: var(--wsc-system-primary); }
+    .topnav-link.active {
+      color: var(--wsc-system-primary);
+      border-bottom-color: var(--wsc-system-primary);
+    }
+
+    .topnav-icon-btn {
+      background: none;
+      border: none;
+      color: var(--wsc-system-icon-default);
+      cursor: pointer;
+      padding: var(--wsc-system-spacer-rem-2xs);
+      border-radius: var(--wsc-border-radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background var(--wsc-transition-fast);
+    }
+
+    .topnav-icon-btn:hover { background: var(--wsc-system-surface-container); }
+    .topnav-icon-btn .material-icons { font-size: 22px; }
+
+    /* ═══ APP BODY ═══ */
+    .app-body {
+      display: flex;
+      height: calc(100vh - var(--wcts-topnav-height) - 22px);
+      margin-top: calc(var(--wcts-topnav-height) + 22px);
+    }
+
+    /* ═══ SIDEBAR ═══ */
+    .sidebar {
+      width: var(--wcts-sidebar-width);
+      background: var(--wsc-system-secondary);
+      color: var(--wsc-system-on-secondary);
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      overflow-x: hidden;
+      transition: width var(--wsc-transition-normal);
+    }
+
+    .sidebar.collapsed { width: var(--wcts-sidebar-collapsed-width); }
+    .sidebar-nav { flex: 1; padding-top: var(--wsc-system-spacer-rem-xs); }
+
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: var(--wsc-system-spacer-rem-sm);
+      padding: var(--wsc-system-spacer-rem-sm) var(--wsc-system-spacer-rem-md);
+      color: rgba(255, 255, 255, 0.85);
+      text-decoration: none;
+      cursor: pointer;
+      transition: background var(--wsc-transition-fast);
+      white-space: nowrap;
+    }
+
+    .sidebar-item:hover { background: rgba(255, 255, 255, 0.08); }
+    .sidebar-item.active {
+      background: rgba(255, 255, 255, 0.12);
+      color: var(--wsc-system-on-secondary);
+      font-weight: var(--wsc-system-typography-body-1-font-weight);
+    }
+
+    .sidebar-item .material-icons { font-size: 20px; opacity: 0.85; flex-shrink: 0; }
+    .sidebar-item-label { font-size: var(--wsc-system-typography-body-2-font-size); }
+
+    .sidebar-collapse {
+      display: flex;
+      align-items: center;
+      gap: var(--wsc-system-spacer-rem-xs);
+      justify-content: flex-end;
+      padding: var(--wsc-system-spacer-rem-sm) var(--wsc-system-spacer-rem-md);
+      color: rgba(255, 255, 255, 0.6);
+      cursor: pointer;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: var(--wsc-system-typography-caption-font-size);
+      transition: background var(--wsc-transition-fast);
+    }
+
+    .sidebar-collapse:hover { background: rgba(255, 255, 255, 0.08); }
+    .sidebar-collapse .material-icons { font-size: 18px; }
+
+    /* ═══ MAIN CONTENT ═══ */
+    .main-content {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      background: var(--wsc-system-surface);
+      padding-bottom: 80px;
+    }
+
+    .content-area {
+      padding: var(--wcts-content-padding);
+      max-width: 900px;
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+
+    .breadcrumb a {
+      color: var(--wsc-system-primary);
+      text-decoration: none;
+      font-size: 12px;
+    }
+
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb .separator {
+      color: var(--wsc-system-neutral-variant);
+      font-size: 16px;
+    }
+
+    .breadcrumb .current {
+      color: var(--wsc-system-on-surface-variant);
+      font-size: 12px;
+    }
+
+    /* ═══ ENTITY BANNER ═══ */
+    .entity-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--wsc-system-surface-container-low);
+      border: 1px solid var(--wsc-system-outline);
+      border-radius: var(--wsc-border-radius-md);
+      padding: 12px 20px;
+      margin-bottom: 20px;
+    }
+
+    .entity-info {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .entity-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--wsc-system-on-primary-container);
+    }
+
+    .entity-divider {
+      width: 1px;
+      height: 20px;
+      background: var(--wsc-system-outline);
+    }
+
+    .entity-field {
+      font-size: 13px;
+      color: var(--wsc-system-on-surface);
+    }
+
+    .entity-field-label {
+      color: var(--wsc-system-on-surface-variant);
+      font-weight: 500;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 16px;
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: capitalize;
+      white-space: nowrap;
+    }
+
+    .badge-active { background: var(--wsc-system-success); color: var(--wsc-system-on-success); }
+
+    .entity-fields-row { display: contents; }
+
+    .page-title {
+      font-size: var(--wcts-page-title-size);
+      font-weight: var(--wcts-page-title-weight);
+      color: var(--wsc-system-on-primary-container);
+      margin-bottom: 24px;
+    }
+
+    /* ═══ CARD ═══ */
+    .card {
+      background: var(--wsc-system-surface);
+      border: 1px solid var(--wsc-system-outline);
+      border-radius: var(--wcts-card-border-radius);
+      box-shadow: var(--wcts-card-shadow);
+      margin-bottom: var(--wcts-card-margin-bottom);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--wcts-card-header-padding);
+      border-bottom: 1px solid var(--wsc-system-outline);
+    }
+
+    .card-title {
+      font-size: var(--wcts-card-header-size);
+      font-weight: var(--wcts-card-header-weight);
+      color: var(--wsc-system-on-primary-container);
+    }
+
+    .card-body {
+      padding: var(--wcts-card-body-padding);
+    }
+
+    /* ═══ SUMMARY SECTION ═══ */
+    .summary-section {
+      margin-bottom: 20px;
+    }
+
+    .summary-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .summary-section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--wsc-system-on-primary-container);
+    }
+
+    .edit-section-btn {
+      background: none;
+      border: none;
+      color: var(--wsc-system-primary);
+      cursor: pointer;
+      padding: 4px;
+      border-radius: var(--wsc-border-radius-sm);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      font-weight: 500;
+      transition: background var(--wsc-transition-fast);
+    }
+
+    .edit-section-btn:hover {
+      background: var(--wsc-system-primary-container);
+    }
+
+    .edit-section-btn .material-icons {
+      font-size: 16px;
+    }
+
+    .summary-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .summary-list li {
+      padding: 8px 0;
+      font-size: 13px;
+      color: var(--wsc-system-on-surface);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .summary-list li::before {
+      content: '•';
+      color: var(--wsc-system-primary);
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .summary-list.editable li {
+      position: relative;
+      padding-right: 60px;
+    }
+
+    .summary-list li.editing {
+      background: var(--wsc-system-surface-container-low);
+      padding: 8px;
+      border-radius: var(--wsc-border-radius-sm);
+      margin: 4px 0;
+    }
+
+    .summary-list li.editing::before {
+      display: none;
+    }
+
+    .summary-list li .item-text {
+      flex: 1;
+    }
+
+    .summary-list li .item-edit-field {
+      display: none;
+      flex: 1;
+    }
+
+    .summary-list li.editing .item-text {
+      display: none;
+    }
+
+    .summary-list li.editing .item-edit-field {
+      display: block;
+    }
+
+    .summary-list li.editing .mat-field {
+      margin-bottom: 0;
+    }
+
+    .summary-list li.editing .mat-field .form-input {
+      font-size: 13px;
+      padding: 8px 12px 6px;
+      min-height: 34px;
+    }
+
+    .summary-list li.editing .mat-field .form-label {
+      font-size: 11px;
+      top: 2px;
+      left: 12px;
+    }
+
+    .item-actions {
+      display: none;
+      gap: 4px;
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .summary-list.editable .item-actions {
+      display: flex;
+    }
+
+    .item-action-btn {
+      background: none;
+      border: none;
+      color: var(--wsc-system-neutral);
+      cursor: pointer;
+      padding: 2px;
+      border-radius: var(--wsc-border-radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--wsc-transition-fast);
+    }
+
+    .item-action-btn:hover {
+      background: var(--wsc-system-surface-container);
+    }
+
+    .item-action-btn .material-icons {
+      font-size: 16px;
+    }
+
+    .item-action-btn.save {
+      color: var(--wsc-system-success);
+    }
+
+    .item-action-btn.cancel {
+      color: var(--wsc-system-error);
+    }
+
+    .item-action-btn.delete {
+      color: var(--wsc-system-error);
+    }
+
+    .section-divider {
+      height: 1px;
+      background: var(--wsc-system-outline);
+      margin: 20px 0;
+    }
+
+    .add-item-btn {
+      display: none;
+      background: none;
+      border: 1px dashed var(--wsc-system-outline);
+      color: var(--wsc-system-primary);
+      cursor: pointer;
+      padding: 8px 12px;
+      border-radius: var(--wsc-border-radius-sm);
+      font-size: 12px;
+      font-weight: 500;
+      margin-top: 8px;
+      width: 100%;
+      transition: all var(--wsc-transition-fast);
+    }
+
+    .add-item-btn:hover {
+      background: var(--wsc-system-primary-container);
+      border-color: var(--wsc-system-primary);
+    }
+
+    .summary-section.editing .add-item-btn {
+      display: block;
+    }
+
+    /* ═══ MATERIAL FILL FIELD ═══ */
+    .mat-field {
+      position: relative;
+      background: var(--wsc-system-mat-fill-bg);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.42);
+      border-radius: 4px 4px 0 0;
+      padding: 20px 12px 8px;
+      transition: border-color 0.15s ease;
+      margin-bottom: 16px;
+    }
+
+    .mat-field:focus-within {
+      border-bottom: 2px solid var(--wsc-system-primary);
+      padding-bottom: 7px;
+    }
+
+    .mat-field .form-label {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 14px;
+      color: var(--wsc-system-neutral-variant);
+      font-weight: 400;
+      margin: 0;
+      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+    }
+
+    .mat-field:focus-within .form-label,
+    .mat-field:has(.form-input:not(:placeholder-shown)) .form-label,
+    .mat-field:has(.form-select) .form-label,
+    .mat-field:has(.form-textarea) .form-label {
+      top: 6px;
+      transform: none;
+      font-size: 12px;
+      color: var(--wsc-system-on-surface-variant);
+    }
+
+    .mat-field:focus-within .form-label {
+      color: var(--wsc-system-primary);
+    }
+
+    .mat-field .form-input::placeholder,
+    .mat-field .form-textarea::placeholder { color: transparent; }
+
+    .form-input {
+      width: 100%;
+      border: none;
+      background: transparent;
+      padding: 2px 0;
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--wsc-system-on-surface);
+      outline: none;
+    }
+
+    .form-select {
+      width: 100%;
+      border: none;
+      background: transparent;
+      padding: 2px 24px 2px 0;
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--wsc-system-on-surface);
+      outline: none;
+      appearance: none;
+      cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='%235f727e'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0 center;
+    }
+
+    .form-textarea {
+      width: 100%;
+      border: none;
+      background: transparent;
+      padding: 2px 0;
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--wsc-system-on-surface);
+      outline: none;
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .form-field-icon {
+      position: relative;
+    }
+
+    .form-field-icon .field-icon {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--wsc-system-neutral);
+      font-size: 20px;
+      pointer-events: none;
+    }
+
+    .form-field-icon .form-input {
+      padding-right: 28px;
+    }
+
+    /* Checkbox */
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--wsc-system-on-surface);
+      margin-bottom: 12px;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--wsc-system-primary);
+      cursor: pointer;
+      margin: 0;
+    }
+
+    .checkbox-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--wsc-system-on-surface);
+    }
+
+    /* ═══ STICKY FOOTER ═══ */
+    .form-footer {
+      position: fixed;
+      bottom: 0;
+      left: var(--wcts-sidebar-width);
+      right: 0;
+      background: var(--wsc-system-surface);
+      border-top: 1px solid var(--wsc-system-outline);
+      padding: 12px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      z-index: 50;
+      transition: left var(--wsc-transition-normal);
+    }
+
+    .footer-left {
+      display: flex;
+      align-items: center;
+    }
+
+    .footer-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-text-link {
+      background: none;
+      border: none;
+      color: var(--wsc-system-primary);
+      font-size: var(--wsc-system-typography-button-font-size);
+      font-weight: var(--wsc-system-typography-button-font-weight);
+      cursor: pointer;
+      padding: 8px 4px;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+
+    .btn-text-link:hover { text-decoration: underline; }
+
+    .btn-primary {
+      background: var(--wsc-system-primary);
+      color: var(--wsc-system-on-primary);
+      border: none;
+      padding: 8px 20px;
+      border-radius: var(--wsc-border-radius-md);
+      font-size: var(--wsc-system-typography-button-font-size);
+      font-weight: var(--wsc-system-typography-button-font-weight);
+      cursor: pointer;
+      letter-spacing: 0.3px;
+      transition: background var(--wsc-transition-fast);
+    }
+
+    .btn-primary:hover { background: var(--wsc-system-primary-hover); }
+
+    /* ═══ PROTOTYPE BANNER ═══ */
+    .prototype-banner {
+      background: var(--wsc-system-warning-container);
+      color: var(--wsc-system-on-warning-container);
+      text-align: center;
+      padding: var(--wsc-system-spacer-rem-2xs) var(--wsc-system-spacer-rem-md);
+      font-size: var(--wsc-system-typography-caption-font-size);
+      font-weight: var(--wsc-system-typography-caption-font-weight);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 200;
+    }
+
+    /* ═══ HAMBURGER BUTTON ═══ */
+    .topnav-hamburger {
+      background: none;
+      border: none;
+      color: var(--wsc-system-icon-default);
+      cursor: pointer;
+      padding: var(--wsc-system-spacer-rem-2xs);
+      border-radius: var(--wsc-border-radius-full);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      margin-right: var(--wsc-system-spacer-rem-xs);
+      transition: background var(--wsc-transition-fast);
+    }
+
+    .topnav-hamburger:hover { background: var(--wsc-system-surface-container); }
+    .topnav-hamburger .material-icons { font-size: 24px; }
+
+    .scrim-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--wsc-system-scrim);
+      opacity: 0;
+      z-index: 149;
+      transition: opacity var(--wsc-transition-normal);
+    }
+
+    /* ═══ Responsive ═══ */
+    @media (max-width: 1023px) {
+      .sidebar { width: var(--wcts-sidebar-collapsed-width); }
+      .sidebar-item-label { display: none; }
+      .sidebar-collapse { justify-content: center; padding: var(--wsc-system-spacer-rem-sm) 0; }
+      .sidebar-collapse .material-icons { transform: rotate(180deg); }
+      .sidebar-item { justify-content: center; padding: var(--wsc-system-spacer-rem-sm) 0; }
+      .topnav-links { display: none; }
+
+      .form-footer {
+        left: var(--wcts-sidebar-collapsed-width);
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: flex-start;
+        gap: 8px;
+        padding: 12px 16px;
+      }
+
+      .footer-left, .footer-right { display: contents; }
+      .form-footer .btn-primary { order: 1; }
+      .form-footer .btn-text-link { order: 2; }
+
+      .form-footer .btn-primary {
+        width: 100%;
+        min-height: 44px;
+        justify-content: center;
+      }
+
+      .form-footer .btn-text-link {
+        align-self: center;
+        min-height: 44px;
+        padding: 8px 16px;
+      }
+    }
+
+    @media (max-width: 639px) {
+      .topnav-hamburger { display: flex; }
+      .topnav-links { display: none; }
+
+      .sidebar {
+        position: fixed;
+        top: calc(var(--wcts-topnav-height) + 22px);
+        left: 0;
+        bottom: 0;
+        width: var(--wcts-sidebar-width);
+        z-index: 150;
+        transform: translateX(-100%);
+        transition: transform var(--wsc-transition-normal);
+      }
+
+      body.sidebar-open .sidebar { transform: translateX(0); }
+      body.sidebar-open .sidebar-item-label,
+      .sidebar-item-label { display: inline; }
+
+      .sidebar-item {
+        justify-content: flex-start;
+        padding: var(--wsc-system-spacer-rem-sm) var(--wsc-system-spacer-rem-md);
+      }
+
+      .sidebar-collapse { display: flex; }
+
+      body.sidebar-open .scrim-overlay {
+        display: block;
+        opacity: 0.32;
+      }
+
+      .form-footer { left: 0; }
+
+      .entity-banner { padding: 12px 16px; align-items: center; }
+      .entity-divider { display: none; }
+      .entity-info {
+        flex: 1;
+        min-width: 0;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+      }
+
+      .entity-fields-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .content-area { padding: 12px 16px; }
+      .page-title { font-size: 18px; }
+
+      .prototype-banner {
+        font-size: 9px;
+        padding: 2px var(--wsc-system-spacer-rem-2xs);
+        white-space: nowrap;
+      }
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="prototype-banner">Prototype only — Adapt to your repo's patterns, rules, and design system before implementation</div>
+
+  <!-- ═══ TOP NAV BAR ═══ -->
+  <nav class="topnav">
+    <div class="topnav-left">
+      <button class="topnav-hamburger" onclick="toggleDrawer()" title="Menu">
+        <span class="material-icons">menu</span>
+      </button>
+      <div class="topnav-logo">
+        <svg width="56" height="28" viewBox="0 0 56 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M38.33 10.74L28.24 0.650009C28.197 0.604303 28.1451 0.56788 28.0875 0.542984C28.0299 0.518088 27.9678 0.505249 27.905 0.505249C27.8422 0.505249 27.7801 0.518088 27.7225 0.542984C27.6649 0.56788 27.613 0.604303 27.57 0.650009L12 16.24L21.45 18.84L38.33 10.74Z" fill="#71B0B4"/>
+          <path d="M45.3496 7.39L38.3496 10.74L55.7496 28.24L45.9696 7.60999C45.9156 7.49949 45.8204 7.41456 45.7045 7.37343C45.5886 7.3323 45.4612 7.33825 45.3496 7.39Z" fill="#D38235"/>
+          <path d="M21.4497 18.81L38.3297 10.74L55.7497 28.23L21.4497 18.81Z" fill="#A9431E"/>
+          <path d="M55.75 28.24H0L7.5 15.46C7.5611 15.3298 7.66995 15.2281 7.80399 15.176C7.93803 15.1238 8.08699 15.1253 8.22 15.18L55.75 28.24Z" fill="#253746"/>
+        </svg>
+        <span style="font-size: 14px; font-weight: 600; color: var(--wsc-system-secondary); margin-left: var(--wsc-system-spacer-rem-xs);">WellSky</span>
+      </div>
+    </div>
+    <div class="topnav-right">
+      <div class="topnav-links">
+        <a class="topnav-link" href="#">Dashboard</a>
+        <a class="topnav-link active" href="#">Patients</a>
+        <a class="topnav-link" href="#">Orders</a>
+        <a class="topnav-link" href="#">Reports</a>
+      </div>
+      <button class="topnav-icon-btn" title="Notifications"><span class="material-icons">notifications</span></button>
+      <button class="topnav-icon-btn" title="Search"><span class="material-icons">search</span></button>
+      <button class="topnav-icon-btn" title="Account"><span class="material-icons">account_circle</span></button>
+      <button class="topnav-icon-btn" title="More"><span class="material-icons">more_vert</span></button>
+    </div>
+  </nav>
+
+  <!-- ═══ SCRIM (mobile drawer backdrop) ═══ -->
+  <div class="scrim-overlay" onclick="closeDrawer()"></div>
+
+  <!-- ═══ APP BODY ═══ -->
+  <div class="app-body">
+
+    <!-- ═══ SIDEBAR ═══ -->
+    <aside class="sidebar" id="sidebar">
+      <nav class="sidebar-nav">
+        <a class="sidebar-item" href="#">
+          <span class="material-icons">dashboard</span>
+          <span class="sidebar-item-label">Dashboard</span>
+        </a>
+        <a class="sidebar-item active" href="#">
+          <span class="material-icons">people</span>
+          <span class="sidebar-item-label">Patients</span>
+        </a>
+        <a class="sidebar-item" href="#">
+          <span class="material-icons">assignment</span>
+          <span class="sidebar-item-label">Orders</span>
+        </a>
+        <a class="sidebar-item" href="#">
+          <span class="material-icons">local_pharmacy</span>
+          <span class="sidebar-item-label">Medications</span>
+        </a>
+        <a class="sidebar-item" href="#">
+          <span class="material-icons">bar_chart</span>
+          <span class="sidebar-item-label">Reports</span>
+        </a>
+        <a class="sidebar-item" href="#">
+          <span class="material-icons">settings</span>
+          <span class="sidebar-item-label">Settings</span>
+        </a>
+      </nav>
+      <div class="sidebar-collapse" onclick="toggleSidebar()">
+        <span class="material-icons" id="collapse-icon">keyboard_double_arrow_left</span>
+        <span class="sidebar-item-label" id="collapse-label">Collapse</span>
+      </div>
+    </aside>
+
+    <!-- ═══ MAIN CONTENT ═══ -->
+    <main class="main-content">
+      <div class="content-area">
+
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb">
+          <a href="#">Home</a>
+          <span class="separator">&#8250;</span>
+          <a href="#">Patients</a>
+          <span class="separator">&#8250;</span>
+          <a href="#">Maria Santos</a>
+          <span class="separator">&#8250;</span>
+          <a href="#">Discharge</a>
+          <span class="separator">&#8250;</span>
+          <span class="current">Progress Note</span>
+        </nav>
+
+        <!-- Entity Banner -->
+        <div class="entity-banner">
+          <div class="entity-info">
+            <span class="entity-name">Maria Santos</span>
+            <div class="entity-divider"></div>
+            <div class="entity-fields-row">
+              <span class="entity-field"><span class="entity-field-label">MRN:</span> 458923</span>
+              <div class="entity-divider"></div>
+              <span class="entity-field"><span class="entity-field-label">DOB:</span> 08/12/1967</span>
+              <div class="entity-divider"></div>
+              <span class="entity-field"><span class="entity-field-label">Admission:</span> 03/15/2026</span>
+              <div class="entity-divider"></div>
+              <span class="badge badge-active">Active</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Page Title -->
+        <h1 class="page-title">Discharge Progress Note</h1>
+
+        <!-- Discharge Summary Card -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Discharge Summary</h2>
+          </div>
+          <div class="card-body">
+
+            <!-- Selected Episodes of Care -->
+            <div class="summary-section" id="section-eoc">
+              <div class="summary-section-header">
+                <div class="summary-section-title">Episodes of Care Being Discharged</div>
+                <button class="edit-section-btn" onclick="toggleEditMode('section-eoc')">
+                  <span class="material-icons">edit</span>
+                  <span class="edit-btn-text">Edit</span>
+                </button>
+              </div>
+              <ul class="summary-list" id="list-eoc">
+                <li>
+                  <span class="item-text">Home Health - Skilled Nursing (Case #: HH-2026-0034)</span>
+                  <div class="item-edit-field">
+                    <div class="mat-field">
+                      <label class="form-label">Edit Item</label>
+                      <input type="text" class="form-input" value="Home Health - Skilled Nursing (Case #: HH-2026-0034)" placeholder=" ">
+                    </div>
+                  </div>
+                  <div class="item-actions">
+                    <button class="item-action-btn save" onclick="saveItem(this)" title="Save">
+                      <span class="material-icons">check</span>
+                    </button>
+                    <button class="item-action-btn cancel" onclick="cancelEdit(this)" title="Cancel">
+                      <span class="material-icons">close</span>
+                    </button>
+                    <button class="item-action-btn delete" onclick="deleteItem(this)" title="Delete">
+                      <span class="material-icons">delete</span>
+                    </button>
+                  </div>
+                </li>
+                <li>
+                  <span class="item-text">Physical Therapy Services (Case #: PT-2026-0122)</span>
+                  <div class="item-edit-field">
+                    <div class="mat-field">
+                      <label class="form-label">Edit Item</label>
+                      <input type="text" class="form-input" value="Physical Therapy Services (Case #: PT-2026-0122)" placeholder=" ">
+                    </div>
+                  </div>
+                  <div class="item-actions">
+                    <button class="item-action-btn save" onclick="saveItem(this)" title="Save">
+                      <span class="material-icons">check</span>
+                    </button>
+                    <button class="item-action-btn cancel" onclick="cancelEdit(this)" title="Cancel">
+                      <span class="material-icons">close</span>
+                    </button>
+                    <button class="item-action-btn delete" onclick="deleteItem(this)" title="Delete">
+                      <span class="material-icons">delete</span>
+                    </button>
+                  </div>
+                </li>
+              </ul>
+              <button class="add-item-btn" onclick="addNewItem('list-eoc')">
+                <span class="material-icons" style="font-size: 16px; margin-right: 4px;">add</span>
+                Add Episode of Care
+              </button>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <!-- Completed Documentation -->
+            <div class="summary-section" id="section-docs">
+              <div class="summary-section-header">
+                <div class="summary-section-title">Completed Documentation</div>
+                <button class="edit-section-btn" onclick="toggleEditMode('section-docs')">
+                  <span class="material-icons">edit</span>
+                  <span class="edit-btn-text">Edit</span>
+                </button>
+              </div>
+              <ul class="summary-list" id="list-docs">
+                <li>
+                  <span class="item-text">Care Plans updated by A. Smith on 04/10/2026 at 2:34 PM</span>
+                  <div class="item-edit-field">
+                    <div class="mat-field">
+                      <label class="form-label">Edit Item</label>
+                      <input type="text" class="form-input" value="Care Plans updated by A. Smith on 04/10/2026 at 2:34 PM" placeholder=" ">
+                    </div>
+                  </div>
+                  <div class="item-actions">
+                    <button class="item-action-btn save" onclick="saveItem(this)" title="Save">
+                      <span class="material-icons">check</span>
+                    </button>
+                    <button class="item-action-btn cancel" onclick="cancelEdit(this)" title="Cancel">
+                      <span class="material-icons">close</span>
+                    </button>
+                    <button class="item-action-btn delete" onclick="deleteItem(this)" title="Delete">
+                      <span class="material-icons">delete</span>
+                    </button>
+                  </div>
+                </li>
+                <li>
+                  <span class="item-text">Outstanding Tasks completed</span>
+                  <div class="item-edit-field">
+                    <div class="mat-field">
+                      <label class="form-label">Edit Item</label>
+                      <input type="text" class="form-input" value="Outstanding Tasks completed" placeholder=" ">
+                    </div>
+                  </div>
+                  <div class="item-actions">
+                    <button class="item-action-btn save" onclick="saveItem(this)" title="Save">
+                      <span class="material-icons">check</span>
+                    </button>
+                    <button class="item-action-btn cancel" onclick="cancelEdit(this)" title="Cancel">
+                      <span class="material-icons">close</span>
+                    </button>
+                    <button class="item-action-btn delete" onclick="deleteItem(this)" title="Delete">
+                      <span class="material-icons">delete</span>
+                    </button>
+                  </div>
+                </li>
+                <li>
+                  <span class="item-text">Relevant Diagnoses inactivated by Dr. Johnson on 04/12/2026 at 9:15 AM</span>
+                  <div class="item-edit-field">
+                    <div class="mat-field">
+                      <label class="form-label">Edit Item</label>
+                      <input type="text" class="form-input" value="Relevant Diagnoses inactivated by Dr. Johnson on 04/12/2026 at 9:15 AM" placeholder=" ">
+                    </div>
+                  </div>
+                  <div class="item-actions">
+                    <button class="item-action-btn save" onclick="saveItem(this)" title="Save">
+                      <span class="material-icons">check</span>
+                    </button>
+                    <button class="item-action-btn cancel" onclick="cancelEdit(this)" title="Cancel">
+                      <span class="material-icons">close</span>
+                    </button>
+                    <button class="item-action-btn delete" onclick="deleteItem(this)" title="Delete">
+                      <span class="material-icons">delete</span>
+                    </button>
+                  </div>
+                </li>
+                <li>
+                  <span class="item-text">Discharge Summary completed</span>
+                  <div class="item-edit-field">
+                    <div class="mat-field">
+                      <label class="form-label">Edit Item</label>
+                      <input type="text" class="form-input" value="Discharge Summary completed" placeholder=" ">
+                    </div>
+                  </div>
+                  <div class="item-actions">
+                    <button class="item-action-btn save" onclick="saveItem(this)" title="Save">
+                      <span class="material-icons">check</span>
+                    </button>
+                    <button class="item-action-btn cancel" onclick="cancelEdit(this)" title="Cancel">
+                      <span class="material-icons">close</span>
+                    </button>
+                    <button class="item-action-btn delete" onclick="deleteItem(this)" title="Delete">
+                      <span class="material-icons">delete</span>
+                    </button>
+                  </div>
+                </li>
+              </ul>
+              <button class="add-item-btn" onclick="addNewItem('list-docs')">
+                <span class="material-icons" style="font-size: 16px; margin-right: 4px;">add</span>
+                Add Documentation Item
+              </button>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <!-- Triggered Actions -->
+            <div class="summary-section" id="section-actions">
+              <div class="summary-section-header">
+                <div class="summary-section-title">Discharge Actions Triggered</div>
+                <button class="edit-section-btn" onclick="toggleEditMode('section-actions')">
+                  <span class="material-icons">edit</span>
+                  <span class="edit-btn-text">Edit</span>
+                </button>
+              </div>
+              <ul class="summary-list" id="list-actions">
+                <li>
+                  <span class="item-text">All active orders discontinued for selected Episodes of Care</span>
+                  <div class="item-edit-field">
+                    <div class="mat-field">
+                      <label class="form-label">Edit Item</label>
+                      <input type="text" class="form-input" value="All active orders discontinued for selected Episodes of Care" placeholder=" ">
+                    </div>
+                  </div>
+                  <div class="item-actions">
+                    <button class="item-action-btn save" onclick="saveItem(this)" title="Save">
+                      <span class="material-icons">check</span>
+                    </button>
+                    <button class="item-action-btn cancel" onclick="cancelEdit(this)" title="Cancel">
+                      <span class="material-icons">close</span>
+                    </button>
+                    <button class="item-action-btn delete" onclick="deleteItem(this)" title="Delete">
+                      <span class="material-icons">delete</span>
+                    </button>
+                  </div>
+                </li>
+                <li>
+                  <span class="item-text">Catheter removal confirmed</span>
+                  <div class="item-edit-field">
+                    <div class="mat-field">
+                      <label class="form-label">Edit Item</label>
+                      <input type="text" class="form-input" value="Catheter removal confirmed" placeholder=" ">
+                    </div>
+                  </div>
+                  <div class="item-actions">
+                    <button class="item-action-btn save" onclick="saveItem(this)" title="Save">
+                      <span class="material-icons">check</span>
+                    </button>
+                    <button class="item-action-btn cancel" onclick="cancelEdit(this)" title="Cancel">
+                      <span class="material-icons">close</span>
+                    </button>
+                    <button class="item-action-btn delete" onclick="deleteItem(this)" title="Delete">
+                      <span class="material-icons">delete</span>
+                    </button>
+                  </div>
+                </li>
+                <li>
+                  <span class="item-text">Equipment pick-up ticket created for scheduling</span>
+                  <div class="item-edit-field">
+                    <div class="mat-field">
+                      <label class="form-label">Edit Item</label>
+                      <input type="text" class="form-input" value="Equipment pick-up ticket created for scheduling" placeholder=" ">
+                    </div>
+                  </div>
+                  <div class="item-actions">
+                    <button class="item-action-btn save" onclick="saveItem(this)" title="Save">
+                      <span class="material-icons">check</span>
+                    </button>
+                    <button class="item-action-btn cancel" onclick="cancelEdit(this)" title="Cancel">
+                      <span class="material-icons">close</span>
+                    </button>
+                    <button class="item-action-btn delete" onclick="deleteItem(this)" title="Delete">
+                      <span class="material-icons">delete</span>
+                    </button>
+                  </div>
+                </li>
+                <li>
+                  <span class="item-text">All active outcomes marked with stop date of 04/28/2026</span>
+                  <div class="item-edit-field">
+                    <div class="mat-field">
+                      <label class="form-label">Edit Item</label>
+                      <input type="text" class="form-input" value="All active outcomes marked with stop date of 04/28/2026" placeholder=" ">
+                    </div>
+                  </div>
+                  <div class="item-actions">
+                    <button class="item-action-btn save" onclick="saveItem(this)" title="Save">
+                      <span class="material-icons">check</span>
+                    </button>
+                    <button class="item-action-btn cancel" onclick="cancelEdit(this)" title="Cancel">
+                      <span class="material-icons">close</span>
+                    </button>
+                    <button class="item-action-btn delete" onclick="deleteItem(this)" title="Delete">
+                      <span class="material-icons">delete</span>
+                    </button>
+                  </div>
+                </li>
+              </ul>
+              <button class="add-item-btn" onclick="addNewItem('list-actions')">
+                <span class="material-icons" style="font-size: 16px; margin-right: 4px;">add</span>
+                Add Action Item
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Follow-up Details Card -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Follow-up Details</h2>
+          </div>
+          <div class="card-body">
+
+            <!-- Additional Notes -->
+            <div class="mat-field">
+              <label class="form-label">Additional Notes</label>
+              <textarea class="form-textarea" placeholder=" "></textarea>
+            </div>
+
+            <!-- Follow-up Date -->
+            <div class="mat-field">
+              <label class="form-label">Follow-up Date</label>
+              <div class="form-field-icon">
+                <input type="text" class="form-input" placeholder=" ">
+                <span class="material-icons field-icon">calendar_today</span>
+              </div>
+            </div>
+
+            <!-- Assign Follow-up -->
+            <div class="mat-field">
+              <label class="form-label">Assign Follow-up To</label>
+              <select class="form-select">
+                <option value="">Select user...</option>
+                <option>Dr. Johnson</option>
+                <option>A. Smith, RN</option>
+                <option>Emily Rodriguez, PT</option>
+                <option>James Wilson, MD</option>
+              </select>
+            </div>
+
+            <!-- Checkboxes -->
+            <label class="checkbox-item">
+              <input type="checkbox" id="followup-complete">
+              <span class="checkbox-label">Mark follow-up as complete</span>
+            </label>
+
+            <label class="checkbox-item">
+              <input type="checkbox" id="allow-web-access">
+              <span class="checkbox-label">Allow web access</span>
+            </label>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ═══ STICKY FOOTER ═══ -->
+      <div class="form-footer" id="form-footer">
+        <div class="footer-left">
+          <button class="btn-text-link" onclick="goBack()">Back to Discharge</button>
+        </div>
+        <div class="footer-right">
+          <button class="btn-primary" onclick="dischargePatient()">Discharge Patient</button>
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+
+  <script>
+    /* ═══ Inline Editing Functions ═══ */
+    function toggleEditMode(sectionId) {
+      const section = document.getElementById(sectionId);
+      const list = section.querySelector('.summary-list');
+      const editBtn = section.querySelector('.edit-section-btn');
+      const editBtnText = editBtn.querySelector('.edit-btn-text');
+      const editBtnIcon = editBtn.querySelector('.material-icons');
+
+      section.classList.toggle('editing');
+
+      if (section.classList.contains('editing')) {
+        list.classList.add('editable');
+        editBtnText.textContent = 'Done';
+        editBtnIcon.textContent = 'check';
+      } else {
+        list.classList.remove('editable');
+        editBtnText.textContent = 'Edit';
+        editBtnIcon.textContent = 'edit';
+
+        // Cancel any items that are still in edit mode
+        const editingItems = list.querySelectorAll('li.editing');
+        editingItems.forEach(item => {
+          cancelEdit(item.querySelector('.item-action-btn.cancel'));
+        });
+      }
+    }
+
+    function saveItem(btn) {
+      const listItem = btn.closest('li');
+      const input = listItem.querySelector('.item-edit-field .form-input');
+      const textSpan = listItem.querySelector('.item-text');
+
+      textSpan.textContent = input.value;
+      listItem.classList.remove('editing');
+    }
+
+    function cancelEdit(btn) {
+      const listItem = btn.closest('li');
+      const input = listItem.querySelector('.item-edit-field .form-input');
+      const textSpan = listItem.querySelector('.item-text');
+
+      // Reset input to original value
+      input.value = textSpan.textContent;
+      listItem.classList.remove('editing');
+    }
+
+    function deleteItem(btn) {
+      if (confirm('Are you sure you want to delete this item?')) {
+        const listItem = btn.closest('li');
+        listItem.remove();
+      }
+    }
+
+    function addNewItem(listId) {
+      const list = document.getElementById(listId);
+
+      // Create new list item
+      const newItem = document.createElement('li');
+      newItem.classList.add('editing');
+      newItem.innerHTML = `
+        <span class="item-text"></span>
+        <div class="item-edit-field">
+          <div class="mat-field">
+            <label class="form-label">New Item</label>
+            <input type="text" class="form-input" value="" placeholder=" ">
+          </div>
+        </div>
+        <div class="item-actions">
+          <button class="item-action-btn save" onclick="saveNewItem(this)" title="Save">
+            <span class="material-icons">check</span>
+          </button>
+          <button class="item-action-btn cancel" onclick="cancelNewItem(this)" title="Cancel">
+            <span class="material-icons">close</span>
+          </button>
+          <button class="item-action-btn delete" onclick="deleteItem(this)" title="Delete">
+            <span class="material-icons">delete</span>
+          </button>
+        </div>
+      `;
+
+      list.appendChild(newItem);
+
+      // Focus the input
+      const input = newItem.querySelector('.item-edit-field .form-input');
+      input.focus();
+    }
+
+    function saveNewItem(btn) {
+      const listItem = btn.closest('li');
+      const input = listItem.querySelector('.item-edit-field .form-input');
+      const textSpan = listItem.querySelector('.item-text');
+
+      if (input.value.trim() === '') {
+        alert('Please enter a value for the new item.');
+        return;
+      }
+
+      textSpan.textContent = input.value;
+      listItem.classList.remove('editing');
+
+      // Update the save button's onclick to use regular saveItem
+      const saveBtn = listItem.querySelector('.item-action-btn.save');
+      saveBtn.setAttribute('onclick', 'saveItem(this)');
+    }
+
+    function cancelNewItem(btn) {
+      const listItem = btn.closest('li');
+      const input = listItem.querySelector('.item-edit-field .form-input');
+
+      // If the item is new and empty, remove it
+      if (input.value.trim() === '') {
+        listItem.remove();
+      } else {
+        // Otherwise treat it like a regular cancel
+        cancelEdit(btn);
+      }
+    }
+
+    // Add double-click to edit functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('.summary-list li').forEach(item => {
+        item.addEventListener('dblclick', function(e) {
+          // Only allow editing if the section is in edit mode
+          const section = item.closest('.summary-section');
+          if (section.classList.contains('editing') && !item.classList.contains('editing')) {
+            item.classList.add('editing');
+            const input = item.querySelector('.item-edit-field .form-input');
+            input.focus();
+            input.select();
+          }
+        });
+      });
+    });
+
+    /* ═══ Footer Actions ═══ */
+    function goBack() {
+      window.location.href = 'discharge-workflow.html';
+    }
+
+    function dischargePatient() {
+      if (confirm('Are you ready to discharge this patient? This action will commit all documentation and trigger all selected discharge actions.')) {
+        // In production: POST to backend, show success message, navigate to patient list
+        alert('Patient discharged successfully! Progress note has been saved to the patient record.');
+        window.location.href = '#'; // Simulated navigation to patient list
+      }
+    }
+
+    /* ═══ Sidebar Collapse ═══ */
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const icon = document.getElementById('collapse-icon');
+      const label = document.getElementById('collapse-label');
+      const footer = document.getElementById('form-footer');
+      sidebar.classList.toggle('collapsed');
+      if (sidebar.classList.contains('collapsed')) {
+        icon.textContent = 'keyboard_double_arrow_right';
+        label.style.display = 'none';
+        document.querySelectorAll('.sidebar-item-label').forEach(l => l.style.display = 'none');
+        footer.style.left = 'var(--wcts-sidebar-collapsed-width)';
+      } else {
+        icon.textContent = 'keyboard_double_arrow_left';
+        label.style.display = '';
+        document.querySelectorAll('.sidebar-item-label').forEach(l => l.style.display = '');
+        footer.style.left = 'var(--wcts-sidebar-width)';
+      }
+    }
+
+    /* ═══ Mobile drawer toggle ═══ */
+    function toggleDrawer() {
+      document.body.classList.toggle('sidebar-open');
+    }
+
+    function closeDrawer() {
+      document.body.classList.remove('sidebar-open');
+    }
+
+    window.addEventListener('resize', function () {
+      if (window.innerWidth >= 640) {
+        document.body.classList.remove('sidebar-open');
+      }
+    });
+  </script>
+
+</body>
+</html>

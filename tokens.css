@@ -1,0 +1,259 @@
+/* WellSky Atlas Design Tokens — Recipe Reference
+   Source: @wellsky/ws-atlas-ui-core via Storybook (https://dls.dev.wellsky.io)
+   Last synced: 2026-04-09 (from WellSky Atlas Design System via Storybook)
+   Purpose: Self-contained token file for HTML recipes and prototypes.
+   Usage: <link rel="stylesheet" href="../tokens.css"> from any recipe file.
+*/
+:root {
+  /* ═══ Primary ═══ */
+  --wsc-system-primary: #228189;
+  --wsc-system-on-primary: #ffffff;
+  --wsc-system-primary-container: #e4f0f1;
+  --wsc-system-on-primary-container: #081620;
+  --wsc-system-inverse-primary: #bdd9dc;
+  --wsc-system-primary-fixed: #228189;
+  --wsc-system-on-primary-fixed-variant: #0c5159;
+  --wsc-system-primary-hover: #1b6970;
+  --wsc-system-primary-filled-focused: #1f777e;
+  --wsc-system-primary-filled-pressed: #185f65;
+  --wsc-system-primary-focused: #228189;
+  --wsc-system-primary-disabled: #c4c4c4;
+  --wsc-system-on-primary-disabled: #8a8a8a;
+
+  /* ═══ Secondary ═══ */
+  --wsc-system-secondary: #1b3647;
+  --wsc-system-on-secondary: #ffffff;
+  --wsc-system-secondary-text: #3d5463;
+  --wsc-system-secondary-container: #e4e7e9;
+  --wsc-system-on-secondary-container: #081620;
+
+  /* ═══ Tertiary ═══ */
+  --wsc-system-tertiary: #e59147;
+  --wsc-system-on-tertiary: #ffffff;
+  --wsc-system-tertiary-container: #fbf0e5;
+  --wsc-system-on-tertiary-container: #cb4e0d;
+
+  /* ═══ Surface ═══ */
+  --wsc-system-surface: #ffffff;
+  --wsc-system-surface-dim: #eceff1;
+  --wsc-system-surface-bright: #ffffff;
+  --wsc-system-surface-container-lowest: #ffffff;
+  --wsc-system-surface-container-low: #f7f7f7;
+  --wsc-system-surface-container: #f7f7f7;
+  --wsc-system-surface-container-high: #eceff1;
+  --wsc-system-surface-container-highest: #e0e0e0;
+  --wsc-system-on-surface: #424242;
+  --wsc-system-on-surface-variant: #3d5463;
+  --wsc-system-surface-variant: #eceff1;
+  --wsc-system-surface-tint: #3d5463;
+  --wsc-system-inverse-surface: #424242;
+  --wsc-system-inverse-on-surface: #f7f7f7;
+
+  /* ═══ Background ═══ */
+  --wsc-system-background: #eceff1;
+  --wsc-system-on-background: #000000;
+
+  /* ═══ Outline ═══ */
+  --wsc-system-outline: #e0e0e0;
+  --wsc-system-outline-variant: #5f727e;
+
+  /* ═══ Neutral ═══ */
+  --wsc-system-neutral: #5f727e;
+  --wsc-system-neutral10: #000000;
+  --wsc-system-neutral-variant: #8d9ba3;
+  --wsc-system-neutral-variant20: #10222f;
+
+  /* ═══ Error ═══ */
+  --wsc-system-error: #ba1a1a;
+  --wsc-system-error-emphasis: #c62828;
+  --wsc-system-error-container: #ffdad6;
+  --wsc-system-on-error: #ffffff;
+  --wsc-system-on-error-container: #000000;
+
+  /* ═══ Success, Warning, Info, AI ═══
+     Extended for prototyping — not yet confirmed in ws-atlas-ui-core.
+     Verify against installed package when available. */
+  /* ═══ Success ═══ */
+  --wsc-system-success: #23833f;
+  --wsc-system-success-container: #d4edda;
+  --wsc-system-on-success: #ffffff;
+  --wsc-system-on-success-container: #0a3d1a;
+
+  /* ═══ Warning ═══ */
+  --wsc-system-warning: #d97706;
+  --wsc-system-warning-container: #fff3cd;
+  --wsc-system-on-warning: #ffffff;
+  --wsc-system-on-warning-container: #5c3300;
+
+  /* ═══ Info ═══ */
+  --wsc-system-info: #0d6efd;
+  --wsc-system-info-container: #cfe2ff;
+  --wsc-system-on-info: #ffffff;
+  --wsc-system-on-info-container: #003070;
+
+  /* ═══ AI ═══ */
+  --wsc-system-ai: #97449c;
+  --wsc-system-ai-container: #f0ddf1;
+  --wsc-system-on-ai: #ffffff;
+
+  /* ═══ Misc ═══ */
+  --wsc-system-shadow: #000000;
+  --wsc-system-scrim: #000000;
+  --wsc-system-icon-default: #5f727e;
+
+  /* ═══ Component ═══ */
+  --wsc-system-mat-fill-bg: #f5f5f5;
+  --wsc-system-table-header-bg: #fafafa;
+  --wsc-system-table-row-hover: #f9f9f9;
+  --wsc-system-table-row-divider: #f0f0f0;
+  --wsc-system-placeholder-text: #bbb;
+
+  /* ═══ Spacing (rem) ═══ */
+  --wsc-system-spacer-rem-none: 0;
+  --wsc-system-spacer-rem-3xs: 0.125rem;
+  --wsc-system-spacer-rem-2xs: 0.25rem;
+  --wsc-system-spacer-rem-xs: 0.5rem;
+  --wsc-system-spacer-rem-sm: 0.75rem;
+  --wsc-system-spacer-rem-md: 1rem;
+  --wsc-system-spacer-rem-lg: 1.5rem;
+  --wsc-system-spacer-rem-xl: 2rem;
+  --wsc-system-spacer-rem-2xl: 2.5rem;
+  --wsc-system-spacer-rem-3xl: 3rem;
+  --wsc-system-spacer-rem-4xl: 4rem;
+
+  /* ═══ Border Radius ═══ */
+  --wsc-border-radius-none: 0;
+  --wsc-border-radius-sm: 2px;
+  --wsc-border-radius-md: 4px;
+  --wsc-border-radius-lg: 8px;
+  --wsc-border-radius-xl: 12px;
+  --wsc-border-radius-full: 9999px;
+  --wsc-border-radius-chip-default: 50px;
+
+  /* ═══ Layout ═══ */
+  --wsc-layout-grid-gap-sm: 0.75rem;
+  --wsc-layout-grid-gap-md: 1rem;
+  --wsc-layout-grid-gap-lg: 1.5rem;
+  --wsc-layout-container-lg: 1024px;
+  --wsc-layout-container-xl: 1280px;
+
+  /* ═══ Breakpoints ═══
+     Aligned with Atlas container scale (xs→2xl: 480, 640, 768, 1024, 1280, 1536).
+     Two tiers for prototype use: mobile (<640px) and tablet (640–1023px).
+     Desktop is the implicit default (≥1024px).
+
+     CSS custom properties CANNOT be used inside @media (max-width: var(...)),
+     so these pixel values must be repeated in each block's @media declarations.
+     Use these properties for JS access or documentation reference only.
+
+     Values are the *upper bound* of each tier — i.e., the exact value used
+     inside @media (max-width: ...) — to keep the var name and the media-query
+     literal in sync.
+
+     @media usage:
+       Mobile:  @media (max-width: 639px)  { ... }
+       Tablet:  @media (max-width: 1023px) { ... }
+  */
+  --wsc-breakpoint-mobile-max: 639px;
+  --wsc-breakpoint-tablet-max: 1023px;
+
+  /* ═══ WCTS App Shell Dimensions ═══ */
+  --wcts-topnav-height: 56px;
+  --wcts-sidebar-width: 240px;
+  --wcts-sidebar-collapsed-width: 56px;
+  --wcts-content-padding: 24px 32px;
+
+  /* ═══ Card Dimensions ═══ */
+  --wcts-card-border-radius: 4px;
+  --wcts-card-margin-bottom: 16px;
+  --wcts-card-header-padding: 16px 24px 8px;
+  --wcts-card-body-padding: 0 24px 16px;
+  --wcts-card-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+
+  /* ═══ Shadows ═══ */
+  --wsc-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --wsc-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --wsc-shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --wsc-shadow-overlay: 0 8px 24px rgba(0, 0, 0, 0.15);
+
+  /* ═══ Transitions ═══ */
+  --wsc-transition-fast: 150ms ease;
+  --wsc-transition-normal: 250ms ease;
+  --wsc-transition-slow: 350ms ease;
+
+  /* ═══ Typography ═══ */
+  --wsc-system-typography-headline-1-font-size: 2rem;
+  --wsc-system-typography-headline-1-font-weight: 700;
+  --wsc-system-typography-headline-1-line-height: 2.5rem;
+
+  --wsc-system-typography-headline-2-font-size: 1.75rem;
+  --wsc-system-typography-headline-2-font-weight: 700;
+  --wsc-system-typography-headline-2-line-height: 2.25rem;
+
+  --wsc-system-typography-headline-3-font-size: 1.5rem;
+  --wsc-system-typography-headline-3-font-weight: 600;
+  --wsc-system-typography-headline-3-line-height: 2rem;
+
+  --wsc-system-typography-headline-4-font-size: 1.25rem;
+  --wsc-system-typography-headline-4-font-weight: 600;
+  --wsc-system-typography-headline-4-line-height: 1.75rem;
+
+  --wsc-system-typography-headline-5-font-size: 1.125rem;
+  --wsc-system-typography-headline-5-font-weight: 600;
+  --wsc-system-typography-headline-5-line-height: 1.5rem;
+
+  --wsc-system-typography-headline-6-font-size: 1rem;
+  --wsc-system-typography-headline-6-font-weight: 600;
+  --wsc-system-typography-headline-6-line-height: 1.375rem;
+
+  --wsc-system-typography-subtitle-1-font-size: 1rem;
+  --wsc-system-typography-subtitle-1-font-weight: 500;
+  --wsc-system-typography-subtitle-1-line-height: 1.5rem;
+
+  --wsc-system-typography-subtitle-2-font-size: 0.875rem;
+  --wsc-system-typography-subtitle-2-font-weight: 500;
+  --wsc-system-typography-subtitle-2-line-height: 1.375rem;
+
+  --wsc-system-typography-body-1-font-size: 0.875rem;
+  --wsc-system-typography-body-1-font-weight: 500;
+  --wsc-system-typography-body-1-line-height: 1.25rem;
+
+  --wsc-system-typography-body-2-font-size: 0.875rem;
+  --wsc-system-typography-body-2-font-weight: 400;
+  --wsc-system-typography-body-2-line-height: 1.25rem;
+
+  --wsc-system-typography-caption-font-size: 0.75rem;
+  --wsc-system-typography-caption-font-weight: 400;
+  --wsc-system-typography-caption-line-height: 1rem;
+
+  --wsc-system-typography-button-font-size: 0.875rem;
+  --wsc-system-typography-button-font-weight: 500;
+  --wsc-system-typography-button-line-height: 1.25rem;
+
+  /* ═══ Typography — WCTS reference values ═══ */
+  --wcts-page-title-size: 24px;
+  --wcts-page-title-weight: 400;
+  --wcts-card-header-size: 16px;
+  --wcts-card-header-weight: 700;
+  --wcts-body-size: 14px;
+  --wcts-body-weight: 400;
+  --wcts-label-size: 13px;
+  --wcts-tab-size: 14px;
+  --wcts-tab-weight: 500;
+  --wcts-link-size: 13px;
+  --wcts-link-weight: 500;
+}
+
+/* ═══ Typography Utility Classes ═══ */
+.headline-1 { font-size: var(--wsc-system-typography-headline-1-font-size); font-weight: var(--wsc-system-typography-headline-1-font-weight); line-height: var(--wsc-system-typography-headline-1-line-height); }
+.headline-2 { font-size: var(--wsc-system-typography-headline-2-font-size); font-weight: var(--wsc-system-typography-headline-2-font-weight); line-height: var(--wsc-system-typography-headline-2-line-height); }
+.headline-3 { font-size: var(--wsc-system-typography-headline-3-font-size); font-weight: var(--wsc-system-typography-headline-3-font-weight); line-height: var(--wsc-system-typography-headline-3-line-height); }
+.headline-4 { font-size: var(--wsc-system-typography-headline-4-font-size); font-weight: var(--wsc-system-typography-headline-4-font-weight); line-height: var(--wsc-system-typography-headline-4-line-height); }
+.headline-5 { font-size: var(--wsc-system-typography-headline-5-font-size); font-weight: var(--wsc-system-typography-headline-5-font-weight); line-height: var(--wsc-system-typography-headline-5-line-height); }
+.headline-6 { font-size: var(--wsc-system-typography-headline-6-font-size); font-weight: var(--wsc-system-typography-headline-6-font-weight); line-height: var(--wsc-system-typography-headline-6-line-height); }
+.subtitle-1 { font-size: var(--wsc-system-typography-subtitle-1-font-size); font-weight: var(--wsc-system-typography-subtitle-1-font-weight); line-height: var(--wsc-system-typography-subtitle-1-line-height); }
+.subtitle-2 { font-size: var(--wsc-system-typography-subtitle-2-font-size); font-weight: var(--wsc-system-typography-subtitle-2-font-weight); line-height: var(--wsc-system-typography-subtitle-2-line-height); }
+.body-1 { font-size: var(--wsc-system-typography-body-1-font-size); font-weight: var(--wsc-system-typography-body-1-font-weight); line-height: var(--wsc-system-typography-body-1-line-height); }
+.body-2 { font-size: var(--wsc-system-typography-body-2-font-size); font-weight: var(--wsc-system-typography-body-2-font-weight); line-height: var(--wsc-system-typography-body-2-line-height); }
+.caption { font-size: var(--wsc-system-typography-caption-font-size); font-weight: var(--wsc-system-typography-caption-font-weight); line-height: var(--wsc-system-typography-caption-line-height); }
+.btn-text { font-size: var(--wsc-system-typography-button-font-size); font-weight: var(--wsc-system-typography-button-font-weight); line-height: var(--wsc-system-typography-button-line-height); }

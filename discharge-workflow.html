@@ -1,0 +1,3710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Patient Discharge Workflow</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="tokens.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      font-size: var(--wsc-system-typography-body-2-font-size);
+      font-weight: var(--wsc-system-typography-body-2-font-weight);
+      line-height: var(--wsc-system-typography-body-2-line-height);
+      color: var(--wsc-system-on-surface);
+      background: var(--wsc-system-background);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ═══ TOP NAV BAR ═══ */
+    .topnav {
+      height: var(--wcts-topnav-height);
+      background: var(--wsc-system-surface);
+      color: var(--wsc-system-on-surface);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--wsc-system-spacer-rem-md);
+      position: fixed;
+      top: 22px;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      border-bottom: 1px solid var(--wsc-system-outline);
+    }
+
+    .topnav-left { display: flex; align-items: center; }
+    .topnav-logo { display: flex; align-items: center; }
+    .topnav-logo svg { height: 20px; width: auto; }
+
+    .topnav-right {
+      display: flex;
+      align-items: center;
+      gap: var(--wsc-system-spacer-rem-2xs);
+    }
+
+    .topnav-links { display: flex; align-items: center; gap: 0; }
+
+    .topnav-link {
+      padding: 0 var(--wsc-system-spacer-rem-sm);
+      color: var(--wsc-system-on-surface);
+      text-decoration: none;
+      font-size: var(--wsc-system-typography-body-2-font-size);
+      font-weight: var(--wsc-system-typography-body-1-font-weight);
+      cursor: pointer;
+      transition: color var(--wsc-transition-fast);
+      white-space: nowrap;
+      height: var(--wcts-topnav-height);
+      display: flex;
+      align-items: center;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+    }
+
+    .topnav-link:hover { color: var(--wsc-system-primary); }
+    .topnav-link.active {
+      color: var(--wsc-system-primary);
+      border-bottom-color: var(--wsc-system-primary);
+    }
+
+    .topnav-icon-btn {
+      background: none;
+      border: none;
+      color: var(--wsc-system-icon-default);
+      cursor: pointer;
+      padding: var(--wsc-system-spacer-rem-2xs);
+      border-radius: var(--wsc-border-radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background var(--wsc-transition-fast);
+    }
+
+    .topnav-icon-btn:hover { background: var(--wsc-system-surface-container); }
+    .topnav-icon-btn .material-icons { font-size: 22px; }
+
+    /* ═══ APP BODY ═══ */
+    .app-body {
+      display: flex;
+      height: calc(100vh - var(--wcts-topnav-height) - 22px);
+      margin-top: calc(var(--wcts-topnav-height) + 22px);
+    }
+
+    /* ═══ SIDEBAR ═══ */
+    .sidebar {
+      width: var(--wcts-sidebar-width);
+      background: var(--wsc-system-secondary);
+      color: var(--wsc-system-on-secondary);
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      overflow-x: hidden;
+      transition: width var(--wsc-transition-normal);
+    }
+
+    .sidebar.collapsed { width: var(--wcts-sidebar-collapsed-width); }
+    .sidebar-nav { flex: 1; padding-top: var(--wsc-system-spacer-rem-xs); }
+
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: var(--wsc-system-spacer-rem-sm);
+      padding: var(--wsc-system-spacer-rem-sm) var(--wsc-system-spacer-rem-md);
+      color: rgba(255, 255, 255, 0.85);
+      text-decoration: none;
+      cursor: pointer;
+      transition: background var(--wsc-transition-fast);
+      white-space: nowrap;
+    }
+
+    .sidebar-item:hover { background: rgba(255, 255, 255, 0.08); }
+    .sidebar-item.active {
+      background: rgba(255, 255, 255, 0.12);
+      color: var(--wsc-system-on-secondary);
+      font-weight: var(--wsc-system-typography-body-1-font-weight);
+    }
+
+    .sidebar-item .material-icons { font-size: 20px; opacity: 0.85; flex-shrink: 0; }
+    .sidebar-item-label { font-size: var(--wsc-system-typography-body-2-font-size); }
+
+    .sidebar-collapse {
+      display: flex;
+      align-items: center;
+      gap: var(--wsc-system-spacer-rem-xs);
+      justify-content: flex-end;
+      padding: var(--wsc-system-spacer-rem-sm) var(--wsc-system-spacer-rem-md);
+      color: rgba(255, 255, 255, 0.6);
+      cursor: pointer;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: var(--wsc-system-typography-caption-font-size);
+      transition: background var(--wsc-transition-fast);
+    }
+
+    .sidebar-collapse:hover { background: rgba(255, 255, 255, 0.08); }
+    .sidebar-collapse .material-icons { font-size: 18px; }
+
+    /* ═══ MAIN CONTENT ═══ */
+    .main-content {
+      flex: 1;
+      overflow-x: hidden;
+      background: var(--wsc-system-surface);
+      display: flex;
+      flex-direction: column;
+      padding-bottom: 56px;
+    }
+
+    /* ═══ CONTENT HEADER ═══ */
+    .content-header {
+      padding: var(--wcts-content-padding);
+      padding-bottom: 0;
+      flex-shrink: 0;
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+
+    .breadcrumb a {
+      color: var(--wsc-system-primary);
+      text-decoration: none;
+      font-size: 12px;
+    }
+
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb .separator {
+      color: var(--wsc-system-neutral-variant);
+      font-size: 16px;
+    }
+
+    .breadcrumb .current {
+      color: var(--wsc-system-on-surface-variant);
+      font-size: 12px;
+    }
+
+    /* ═══ ENTITY BANNER ═══ */
+    .entity-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--wsc-system-primary-container);
+      border: 1px solid var(--wsc-system-outline);
+      border-radius: var(--wsc-border-radius-md);
+      padding: 12px 20px;
+      margin-bottom: 20px;
+    }
+
+    .entity-info {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .entity-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--wsc-system-on-primary-container);
+    }
+
+    .entity-divider {
+      width: 1px;
+      height: 20px;
+      background: var(--wsc-system-outline);
+    }
+
+    .entity-field {
+      font-size: 13px;
+      color: var(--wsc-system-on-surface);
+    }
+
+    .entity-field-label {
+      color: var(--wsc-system-on-surface-variant);
+      font-weight: 500;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 16px;
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: capitalize;
+      white-space: nowrap;
+    }
+
+    .badge-active { background: var(--wsc-system-success); color: var(--wsc-system-on-success); }
+    .badge-pending { background: var(--wsc-system-info); color: var(--wsc-system-on-info); }
+    .badge-not-started { background: var(--wsc-system-surface-container-high); color: var(--wsc-system-on-surface); }
+    .badge-in-progress { background: var(--wsc-system-primary); color: var(--wsc-system-on-primary); }
+    .badge-completed { background: var(--wsc-system-success); color: var(--wsc-system-on-success); }
+
+    .entity-fields-row { display: contents; }
+
+    .page-title {
+      font-size: var(--wcts-page-title-size);
+      font-weight: var(--wcts-page-title-weight);
+      color: var(--wsc-system-on-primary-container);
+      margin-bottom: 12px;
+    }
+
+    /* ═══ SPLIT PANEL LAYOUT ═══ */
+    .split-panel {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+      background: var(--wsc-system-background);
+      padding-bottom: 16px;
+    }
+
+    /* --- Left Panel: EOC selection --- */
+    .panel-left {
+      width: 35%;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 12px 8px 0 16px;
+    }
+
+    .panel-left .card {
+      background: var(--wsc-system-surface);
+      border: 1px solid var(--wsc-system-outline);
+      border-radius: var(--wcts-card-border-radius);
+      box-shadow: var(--wcts-card-shadow);
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--wcts-card-header-padding);
+      flex-shrink: 0;
+      border-bottom: 1px solid var(--wsc-system-outline);
+    }
+
+    .card-title {
+      font-size: var(--wcts-card-header-size);
+      font-weight: var(--wcts-card-header-weight);
+      color: var(--wsc-system-on-primary-container);
+    }
+
+    .card-subtitle {
+      font-size: 12px;
+      color: var(--wsc-system-neutral-variant);
+      margin-top: 2px;
+    }
+
+    .card-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--wsc-system-spacer-rem-md);
+    }
+
+    /* EOC List Item */
+    .eoc-item {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 12px;
+      border: 1px solid var(--wsc-system-outline);
+      border-radius: var(--wsc-border-radius-md);
+      margin-bottom: 12px;
+      transition: all var(--wsc-transition-fast);
+    }
+
+    .eoc-item:hover {
+      background: var(--wsc-system-surface-container-low);
+      border-color: var(--wsc-system-primary);
+    }
+
+    .eoc-item.selected {
+      background: var(--wsc-system-primary-container);
+      border-color: var(--wsc-system-primary);
+    }
+
+    .eoc-item-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      cursor: pointer;
+    }
+
+    .eoc-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--wsc-system-primary);
+      cursor: pointer;
+      margin-top: 2px;
+    }
+
+    .eoc-details {
+      flex: 1;
+    }
+
+    .eoc-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--wsc-system-on-surface);
+      margin-bottom: 4px;
+    }
+
+    .eoc-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--wsc-system-neutral-variant);
+    }
+
+    .eoc-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .eoc-actions {
+      display: flex;
+      gap: 8px;
+      margin-left: auto;
+    }
+
+    .view-details-btn {
+      background: none;
+      border: 1px solid var(--wsc-system-primary);
+      color: var(--wsc-system-primary);
+      padding: 4px 12px;
+      border-radius: var(--wsc-border-radius-md);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: 0.3px;
+      transition: all var(--wsc-transition-fast);
+    }
+
+    .view-details-btn:hover {
+      background: var(--wsc-system-primary-container);
+    }
+
+    .eoc-discharge-fields {
+      display: none;
+      padding-top: 12px;
+      border-top: 1px solid var(--wsc-system-outline);
+    }
+
+    .eoc-discharge-fields.show {
+      display: block;
+    }
+
+    .eoc-field-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .eoc-field {
+      flex: 1;
+    }
+
+    /* --- Right Panel: Discharge form --- */
+    .panel-right {
+      flex: 1;
+      background: var(--wsc-system-surface);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid var(--wsc-system-outline);
+      border-radius: var(--wcts-card-border-radius);
+      margin: 12px 16px 0 8px;
+      min-height: 0;
+    }
+
+    .panel-right-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 24px 80px;
+    }
+
+    .section-title {
+      font-size: var(--wcts-card-header-size);
+      font-weight: var(--wcts-card-header-weight);
+      color: var(--wsc-system-on-primary-container);
+      margin-bottom: 8px;
+    }
+
+    .section-subtitle {
+      font-size: 13px;
+      color: var(--wsc-system-neutral-variant);
+      margin-bottom: 16px;
+    }
+
+    .section-divider {
+      height: 1px;
+      background: var(--wsc-system-outline);
+      margin: 24px 0;
+    }
+
+    /* Documentation Task Item */
+    .doc-task {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      border: 1px solid var(--wsc-system-outline);
+      border-radius: var(--wsc-border-radius-md);
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all var(--wsc-transition-fast);
+    }
+
+    .doc-task:hover {
+      background: var(--wsc-system-surface-container-low);
+      border-color: var(--wsc-system-primary);
+    }
+
+    .doc-task-content {
+      flex: 1;
+    }
+
+    .doc-task-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--wsc-system-on-surface);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .required-indicator {
+      color: var(--wsc-system-error);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .doc-task-meta {
+      font-size: 12px;
+      color: var(--wsc-system-neutral-variant);
+    }
+
+    .doc-task-action {
+      margin-left: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+    }
+
+    /* Checkbox Item */
+    .checkbox-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      cursor: pointer;
+      margin-bottom: 12px;
+      padding: 12px;
+      border: 1px solid var(--wsc-system-outline);
+      border-radius: var(--wsc-border-radius-md);
+      transition: all var(--wsc-transition-fast);
+    }
+
+    .checkbox-item:hover {
+      background: var(--wsc-system-surface-container-low);
+    }
+
+    .checkbox-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--wsc-system-primary);
+      cursor: pointer;
+      margin-top: 2px;
+    }
+
+    .checkbox-label-group {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .checkbox-label-primary {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--wsc-system-on-surface);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .checkbox-label-desc {
+      font-size: 12px;
+      color: var(--wsc-system-neutral-variant);
+    }
+
+    /* ═══ MATERIAL FILL FIELD ═══ */
+    .mat-field {
+      position: relative;
+      background: var(--wsc-system-mat-fill-bg);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.42);
+      border-radius: 4px 4px 0 0;
+      padding: 20px 12px 8px;
+      transition: border-color 0.15s ease;
+      margin-bottom: 16px;
+    }
+
+    .mat-field:focus-within {
+      border-bottom: 2px solid var(--wsc-system-primary);
+      padding-bottom: 7px;
+    }
+
+    .mat-field .form-label {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 14px;
+      color: var(--wsc-system-neutral-variant);
+      font-weight: 400;
+      margin: 0;
+      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+    }
+
+    .mat-field:focus-within .form-label,
+    .mat-field:has(.form-input:not(:placeholder-shown)) .form-label,
+    .mat-field:has(.form-select) .form-label,
+    .mat-field:has(.form-textarea) .form-label {
+      top: 6px;
+      transform: none;
+      font-size: 12px;
+      color: var(--wsc-system-on-surface-variant);
+    }
+
+    .mat-field:focus-within .form-label {
+      color: var(--wsc-system-primary);
+    }
+
+    .mat-field.error {
+      border-bottom: 2px solid var(--wsc-system-error);
+      padding-bottom: 7px;
+    }
+
+    .mat-field.error .form-label {
+      color: var(--wsc-system-error);
+    }
+
+    .mat-field .form-input::placeholder,
+    .mat-field .form-textarea::placeholder { color: transparent; }
+
+    .form-input {
+      width: 100%;
+      border: none;
+      background: transparent;
+      padding: 2px 0;
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--wsc-system-on-surface);
+      outline: none;
+    }
+
+    .form-select {
+      width: 100%;
+      border: none;
+      background: transparent;
+      padding: 2px 24px 2px 0;
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--wsc-system-on-surface);
+      outline: none;
+      appearance: none;
+      cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='%235f727e'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0 center;
+    }
+
+    .form-textarea {
+      width: 100%;
+      border: none;
+      background: transparent;
+      padding: 2px 0;
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--wsc-system-on-surface);
+      outline: none;
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .form-field-icon {
+      position: relative;
+    }
+
+    .form-field-icon .field-icon {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--wsc-system-neutral);
+      font-size: 20px;
+      pointer-events: none;
+    }
+
+    /* ═══ STICKY FOOTER ═══ */
+    .form-footer {
+      position: fixed;
+      bottom: 0;
+      left: var(--wcts-sidebar-width);
+      right: 0;
+      background: var(--wsc-system-surface);
+      border-top: 1px solid var(--wsc-system-outline);
+      padding: 12px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      z-index: 50;
+      transition: left var(--wsc-transition-normal);
+    }
+
+    .footer-left {
+      display: flex;
+      align-items: center;
+    }
+
+    .footer-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-text-link {
+      background: none;
+      border: none;
+      color: var(--wsc-system-primary);
+      font-size: var(--wsc-system-typography-button-font-size);
+      font-weight: var(--wsc-system-typography-button-font-weight);
+      cursor: pointer;
+      padding: 8px 4px;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+
+    .btn-text-link:hover { text-decoration: underline; }
+
+    .btn-outlined {
+      background: var(--wsc-system-surface);
+      color: var(--wsc-system-primary);
+      border: 1.5px solid var(--wsc-system-primary);
+      padding: 8px 20px;
+      border-radius: var(--wsc-border-radius-md);
+      font-size: var(--wsc-system-typography-button-font-size);
+      font-weight: var(--wsc-system-typography-button-font-weight);
+      cursor: pointer;
+      letter-spacing: 0.3px;
+      transition: background var(--wsc-transition-fast);
+    }
+
+    .btn-outlined:hover { background: var(--wsc-system-primary-container); }
+
+    .btn-primary {
+      background: var(--wsc-system-primary);
+      color: var(--wsc-system-on-primary);
+      border: none;
+      padding: 8px 20px;
+      border-radius: var(--wsc-border-radius-md);
+      font-size: var(--wsc-system-typography-button-font-size);
+      font-weight: var(--wsc-system-typography-button-font-weight);
+      cursor: pointer;
+      letter-spacing: 0.3px;
+      transition: background var(--wsc-transition-fast);
+    }
+
+    .btn-primary:hover { background: var(--wsc-system-primary-hover); }
+
+    /* ═══ VALIDATION ERROR ═══ */
+    .validation-error {
+      display: none;
+      background: var(--wsc-system-error-container);
+      color: var(--wsc-system-on-error-container);
+      border: 1px solid var(--wsc-system-error);
+      border-radius: var(--wsc-border-radius-md);
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .validation-error.show {
+      display: flex;
+      gap: 12px;
+    }
+
+    .validation-error .error-icon {
+      flex-shrink: 0;
+      font-size: 24px;
+      color: var(--wsc-system-error);
+      line-height: 1;
+    }
+
+    .validation-error .error-content {
+      flex: 1;
+    }
+
+    .validation-error .error-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--wsc-system-on-error-container);
+      margin: 0 0 8px 0;
+      line-height: 24px;
+    }
+
+    .validation-error ul {
+      margin: 0;
+      padding-left: 20px;
+      font-size: 14px;
+      list-style: disc;
+    }
+
+    .validation-error li {
+      margin-bottom: 4px;
+    }
+
+    .validation-error a {
+      color: var(--wsc-system-error);
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    .validation-error a:hover {
+      color: var(--wsc-system-error-emphasis);
+    }
+
+    /* ═══ PROTOTYPE BANNER ═══ */
+    .prototype-banner {
+      background: var(--wsc-system-warning-container);
+      color: var(--wsc-system-on-warning-container);
+      text-align: center;
+      padding: var(--wsc-system-spacer-rem-2xs) var(--wsc-system-spacer-rem-md);
+      font-size: var(--wsc-system-typography-caption-font-size);
+      font-weight: var(--wsc-system-typography-caption-font-weight);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 200;
+    }
+
+    /* ═══ HAMBURGER BUTTON ═══ */
+    .topnav-hamburger {
+      background: none;
+      border: none;
+      color: var(--wsc-system-icon-default);
+      cursor: pointer;
+      padding: var(--wsc-system-spacer-rem-2xs);
+      border-radius: var(--wsc-border-radius-full);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      margin-right: var(--wsc-system-spacer-rem-xs);
+      transition: background var(--wsc-transition-fast);
+    }
+
+    .topnav-hamburger:hover { background: var(--wsc-system-surface-container); }
+    .topnav-hamburger .material-icons { font-size: 24px; }
+
+    .scrim-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--wsc-system-scrim);
+      opacity: 0;
+      z-index: 149;
+      transition: opacity var(--wsc-transition-normal);
+    }
+
+    /* ═══ MODAL DIALOG ═══ */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 300;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal-dialog {
+      background: var(--wsc-system-surface);
+      border-radius: var(--wsc-border-radius-lg);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      max-width: 600px;
+      width: 100%;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-dialog.modal-wide {
+      max-width: 1200px;
+    }
+
+    /* ═══ TASKS TABLE ═══ */
+    .tasks-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--wsc-system-surface);
+      border: 1px solid var(--wsc-system-outline);
+      border-radius: var(--wsc-border-radius-md);
+    }
+
+    .tasks-table thead {
+      background: var(--wsc-system-table-header-bg);
+      border-bottom: 1px solid var(--wsc-system-outline);
+    }
+
+    .tasks-table thead th {
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--wsc-system-on-surface-variant);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .tasks-table tbody tr {
+      border-bottom: 1px solid var(--wsc-system-table-row-divider);
+      transition: background var(--wsc-transition-fast);
+    }
+
+    .tasks-table tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    .tasks-table tbody tr:hover {
+      background: var(--wsc-system-table-row-hover);
+    }
+
+    .tasks-table tbody td {
+      padding: 12px 16px;
+      font-size: 14px;
+      color: var(--wsc-system-on-surface);
+      vertical-align: top;
+    }
+
+    .tasks-table .task-checkbox {
+      cursor: pointer;
+      width: 18px;
+      height: 18px;
+      accent-color: var(--wsc-system-primary);
+    }
+
+    .modal-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--wsc-system-outline);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--wsc-system-on-primary-container);
+    }
+
+    .modal-close-btn {
+      background: none;
+      border: none;
+      color: var(--wsc-system-neutral);
+      cursor: pointer;
+      padding: 4px;
+      border-radius: var(--wsc-border-radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background var(--wsc-transition-fast);
+    }
+
+    .modal-close-btn:hover {
+      background: var(--wsc-system-surface-container);
+    }
+
+    .modal-body {
+      padding: 24px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--wsc-system-outline);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    /* ═══ CARE PLAN ITEMS ═══ */
+    .care-plan-item {
+      border: 1px solid var(--wsc-system-outline);
+      border-radius: var(--wsc-border-radius-md);
+      overflow: hidden;
+    }
+
+    .care-plan-header {
+      display: flex;
+      align-items: center;
+      padding: 12px;
+      background: var(--wsc-system-surface-container-low);
+      cursor: pointer;
+      transition: background var(--wsc-transition-fast);
+    }
+
+    .care-plan-header:hover {
+      background: var(--wsc-system-surface-container);
+    }
+
+    .care-plan-toggle {
+      font-size: 20px;
+      color: var(--wsc-system-on-surface-variant);
+      margin-right: 8px;
+      transition: transform var(--wsc-transition-fast);
+    }
+
+    .care-plan-item.expanded .care-plan-toggle {
+      transform: rotate(90deg);
+    }
+
+    .care-plan-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--wsc-system-on-surface);
+      flex: 1;
+    }
+
+    .care-plan-item.has-error .care-plan-name {
+      color: var(--wsc-system-error);
+    }
+
+    .care-plan-status-badge {
+      margin-left: 12px;
+    }
+
+    .care-plan-content {
+      display: none;
+      padding: 16px;
+      background: var(--wsc-system-surface);
+    }
+
+    .care-plan-item.expanded .care-plan-content {
+      display: block;
+    }
+
+    .care-plan-details {
+      margin-bottom: 12px;
+      padding: 12px;
+      background: var(--wsc-system-surface-container-lowest);
+      border-radius: var(--wsc-border-radius-sm);
+    }
+
+    /* ═══ DIAGNOSIS ITEMS ═══ */
+    .diagnosis-item {
+      border: 1px solid var(--wsc-system-outline);
+      border-radius: var(--wsc-border-radius-md);
+      overflow: hidden;
+    }
+
+    .diagnosis-header {
+      display: flex;
+      align-items: center;
+      padding: 12px;
+      background: var(--wsc-system-surface-container-low);
+      cursor: pointer;
+      transition: background var(--wsc-transition-fast);
+    }
+
+    .diagnosis-header:hover {
+      background: var(--wsc-system-surface-container);
+    }
+
+    .diagnosis-toggle {
+      font-size: 20px;
+      color: var(--wsc-system-on-surface-variant);
+      margin-right: 8px;
+      transition: transform var(--wsc-transition-fast);
+    }
+
+    .diagnosis-item.expanded .diagnosis-toggle {
+      transform: rotate(90deg);
+    }
+
+    .diagnosis-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--wsc-system-on-surface);
+      flex: 1;
+    }
+
+    .diagnosis-item.has-error .diagnosis-name {
+      color: var(--wsc-system-error);
+    }
+
+    .diagnosis-status-badge {
+      margin-left: 12px;
+    }
+
+    .diagnosis-content {
+      display: none;
+      padding: 16px;
+      background: var(--wsc-system-surface);
+    }
+
+    .diagnosis-item.expanded .diagnosis-content {
+      display: block;
+    }
+
+    /* ═══ OUTSTANDING TASK ITEMS ═══ */
+    .outstanding-task-item {
+      margin-bottom: 12px;
+    }
+
+    .task-checkbox-wrapper {
+      display: flex;
+      align-items: flex-start;
+      cursor: pointer;
+      gap: 12px;
+    }
+
+    .task-checkbox {
+      margin-top: 4px;
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+
+    .task-card {
+      flex: 1;
+      border: 1px solid var(--wsc-system-outline);
+      border-radius: var(--wsc-border-radius-md);
+      padding: 12px 16px;
+      background: var(--wsc-system-surface);
+      transition: background var(--wsc-transition-fast);
+    }
+
+    .task-checkbox-wrapper:hover .task-card {
+      background: var(--wsc-system-surface-container-low);
+    }
+
+    .task-row {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 8px;
+    }
+
+    .task-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .task-col-subject {
+      flex: 2;
+      min-width: 0;
+    }
+
+    .task-col-meta {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .task-subject {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--wsc-system-on-surface);
+      margin-bottom: 4px;
+    }
+
+    .task-description {
+      font-size: 13px;
+      color: var(--wsc-system-on-surface-variant);
+    }
+
+    .task-col-assignee,
+    .task-col-priority,
+    .task-col-due,
+    .task-col-updated {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+    }
+
+    .task-meta-label {
+      color: var(--wsc-system-on-surface-variant);
+      font-weight: 500;
+    }
+
+    .task-meta-value {
+      color: var(--wsc-system-on-surface);
+    }
+
+    .task-meta-item {
+      font-size: 13px;
+    }
+
+    .badge-priority-minor {
+      background: var(--wsc-system-surface-container-high);
+      color: var(--wsc-system-on-surface);
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .badge-priority-medium {
+      background: var(--wsc-system-info-container);
+      color: var(--wsc-system-on-info-container);
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .badge-priority-high {
+      background: var(--wsc-system-warning-container);
+      color: var(--wsc-system-on-warning-container);
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .badge-priority-urgent {
+      background: var(--wsc-system-error-container);
+      color: var(--wsc-system-on-error-container);
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .detail-section {
+      font-size: 13px;
+      color: var(--wsc-system-on-surface);
+      margin-bottom: 8px;
+      line-height: 1.5;
+    }
+
+    .detail-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .detail-section strong {
+      color: var(--wsc-system-on-surface-variant);
+      font-weight: 600;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    /* ═══ SLIDE-OVER PANEL ═══ */
+    .slide-over-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.3);
+      z-index: 250;
+    }
+
+    .slide-over-overlay.show {
+      display: block;
+    }
+
+    .slide-over-panel {
+      position: fixed;
+      top: 0;
+      right: -500px;
+      bottom: 0;
+      width: 500px;
+      max-width: 90vw;
+      background: var(--wsc-system-surface);
+      box-shadow: -4px 0 16px rgba(0, 0, 0, 0.2);
+      z-index: 251;
+      display: flex;
+      flex-direction: column;
+      transition: right var(--wsc-transition-normal);
+    }
+
+    .slide-over-panel.show {
+      right: 0;
+    }
+
+    .slide-over-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--wsc-system-outline);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .slide-over-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--wsc-system-on-primary-container);
+    }
+
+    .slide-over-close-btn {
+      background: none;
+      border: none;
+      color: var(--wsc-system-neutral);
+      cursor: pointer;
+      padding: 4px;
+      border-radius: var(--wsc-border-radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background var(--wsc-transition-fast);
+    }
+
+    .slide-over-close-btn:hover {
+      background: var(--wsc-system-surface-container);
+    }
+
+    .slide-over-body {
+      padding: 24px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px 24px;
+    }
+
+    .detail-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .detail-label {
+      font-size: 12px;
+      color: var(--wsc-system-neutral-variant);
+    }
+
+    .detail-value {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--wsc-system-on-surface);
+    }
+
+    /* ═══ Responsive ═══ */
+    @media (max-width: 1023px) {
+      .sidebar { width: var(--wcts-sidebar-collapsed-width); }
+      .sidebar-item-label { display: none; }
+      .sidebar-collapse { justify-content: center; padding: var(--wsc-system-spacer-rem-sm) 0; }
+      .sidebar-collapse .material-icons { transform: rotate(180deg); }
+      .sidebar-item { justify-content: center; padding: var(--wsc-system-spacer-rem-sm) 0; }
+      .topnav-links { display: none; }
+
+      body { height: auto; overflow-x: hidden; overflow-y: auto; }
+      .app-body { height: auto; width: 100%; }
+      .main-content { flex: none; width: 100%; min-width: 0; padding-bottom: 220px; }
+
+      .split-panel { flex-direction: column; height: auto; min-height: 0; width: 100%; }
+      .panel-left { width: 100%; padding: 12px 16px 0; min-height: 250px; }
+      .panel-right { width: auto; align-self: stretch; margin: 12px 16px 0; min-height: 300px; overflow: visible; }
+      .panel-right-content { flex: none; overflow-y: visible; }
+
+      .form-footer {
+        left: var(--wcts-sidebar-collapsed-width);
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: flex-start;
+        gap: 8px;
+        padding: 12px 16px;
+      }
+
+      .footer-left, .footer-right { display: contents; }
+      .form-footer .btn-primary { order: 1; }
+      .form-footer .btn-outlined { order: 2; }
+      .form-footer .btn-text-link { order: 3; }
+
+      .form-footer .btn-primary,
+      .form-footer .btn-outlined {
+        width: 100%;
+        min-height: 44px;
+        justify-content: center;
+      }
+
+      .form-footer .btn-text-link {
+        align-self: center;
+        min-height: 44px;
+        padding: 8px 16px;
+      }
+    }
+
+    @media (max-width: 639px) {
+      .topnav-hamburger { display: flex; }
+      .topnav-links { display: none; }
+
+      .sidebar {
+        position: fixed;
+        top: calc(var(--wcts-topnav-height) + 22px);
+        left: 0;
+        bottom: 0;
+        width: var(--wcts-sidebar-width);
+        z-index: 150;
+        transform: translateX(-100%);
+        transition: transform var(--wsc-transition-normal);
+      }
+
+      body.sidebar-open .sidebar { transform: translateX(0); }
+      body.sidebar-open .sidebar-item-label,
+      .sidebar-item-label { display: inline; }
+
+      .sidebar-item {
+        justify-content: flex-start;
+        padding: var(--wsc-system-spacer-rem-sm) var(--wsc-system-spacer-rem-md);
+      }
+
+      .sidebar-collapse { display: flex; }
+
+      body.sidebar-open .scrim-overlay {
+        display: block;
+        opacity: 0.32;
+      }
+
+      .form-footer { left: 0; }
+
+      .entity-banner { padding: 12px 16px; align-items: center; }
+      .entity-divider { display: none; }
+      .entity-info {
+        flex: 1;
+        min-width: 0;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+      }
+
+      .entity-fields-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .content-header { padding: 12px 16px 0; }
+      .page-title { font-size: 18px; }
+      .panel-right-content { padding: 16px 16px 80px; }
+
+      .prototype-banner {
+        font-size: 9px;
+        padding: 2px var(--wsc-system-spacer-rem-2xs);
+        white-space: nowrap;
+      }
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="prototype-banner">Prototype only — Adapt to your repo's patterns, rules, and design system before implementation</div>
+
+  <!-- ═══ TOP NAV BAR ═══ -->
+  <nav class="topnav">
+    <div class="topnav-left">
+      <button class="topnav-hamburger" onclick="toggleDrawer()" title="Menu">
+        <span class="material-icons">menu</span>
+      </button>
+      <div class="topnav-logo">
+        <svg width="56" height="28" viewBox="0 0 56 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M38.33 10.74L28.24 0.650009C28.197 0.604303 28.1451 0.56788 28.0875 0.542984C28.0299 0.518088 27.9678 0.505249 27.905 0.505249C27.8422 0.505249 27.7801 0.518088 27.7225 0.542984C27.6649 0.56788 27.613 0.604303 27.57 0.650009L12 16.24L21.45 18.84L38.33 10.74Z" fill="#71B0B4"/>
+          <path d="M45.3496 7.39L38.3496 10.74L55.7496 28.24L45.9696 7.60999C45.9156 7.49949 45.8204 7.41456 45.7045 7.37343C45.5886 7.3323 45.4612 7.33825 45.3496 7.39Z" fill="#D38235"/>
+          <path d="M21.4497 18.81L38.3297 10.74L55.7497 28.23L21.4497 18.81Z" fill="#A9431E"/>
+          <path d="M55.75 28.24H0L7.5 15.46C7.5611 15.3298 7.66995 15.2281 7.80399 15.176C7.93803 15.1238 8.08699 15.1253 8.22 15.18L55.75 28.24Z" fill="#253746"/>
+        </svg>
+        <span style="font-size: 14px; font-weight: 600; color: var(--wsc-system-secondary); margin-left: var(--wsc-system-spacer-rem-xs);">WellSky</span>
+      </div>
+    </div>
+    <div class="topnav-right">
+      <div class="topnav-links">
+        <a class="topnav-link" href="#">Dashboard</a>
+        <a class="topnav-link active" href="#">Patients</a>
+        <a class="topnav-link" href="#">Orders</a>
+        <a class="topnav-link" href="#">Reports</a>
+      </div>
+      <button class="topnav-icon-btn" title="Notifications"><span class="material-icons">notifications</span></button>
+      <button class="topnav-icon-btn" title="Search"><span class="material-icons">search</span></button>
+      <button class="topnav-icon-btn" title="Account"><span class="material-icons">account_circle</span></button>
+      <button class="topnav-icon-btn" title="More"><span class="material-icons">more_vert</span></button>
+    </div>
+  </nav>
+
+  <!-- ═══ SCRIM (mobile drawer backdrop) ═══ -->
+  <div class="scrim-overlay" onclick="closeDrawer()"></div>
+
+  <!-- ═══ APP BODY ═══ -->
+  <div class="app-body">
+
+    <!-- ═══ SIDEBAR ═══ -->
+    <aside class="sidebar" id="sidebar">
+      <nav class="sidebar-nav">
+        <a class="sidebar-item" href="#">
+          <span class="material-icons">dashboard</span>
+          <span class="sidebar-item-label">Dashboard</span>
+        </a>
+        <a class="sidebar-item active" href="#">
+          <span class="material-icons">people</span>
+          <span class="sidebar-item-label">Patients</span>
+        </a>
+        <a class="sidebar-item" href="#">
+          <span class="material-icons">assignment</span>
+          <span class="sidebar-item-label">Orders</span>
+        </a>
+        <a class="sidebar-item" href="#">
+          <span class="material-icons">local_pharmacy</span>
+          <span class="sidebar-item-label">Medications</span>
+        </a>
+        <a class="sidebar-item" href="#">
+          <span class="material-icons">bar_chart</span>
+          <span class="sidebar-item-label">Reports</span>
+        </a>
+        <a class="sidebar-item" href="#">
+          <span class="material-icons">settings</span>
+          <span class="sidebar-item-label">Settings</span>
+        </a>
+      </nav>
+      <div class="sidebar-collapse" onclick="toggleSidebar()">
+        <span class="material-icons" id="collapse-icon">keyboard_double_arrow_left</span>
+        <span class="sidebar-item-label" id="collapse-label">Collapse</span>
+      </div>
+    </aside>
+
+    <!-- ═══ MAIN CONTENT ═══ -->
+    <main class="main-content">
+
+      <!-- ═══ CONTENT HEADER ═══ -->
+      <div class="content-header">
+
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb">
+          <a href="#">Home</a>
+          <span class="separator">&#8250;</span>
+          <a href="#">Patients</a>
+          <span class="separator">&#8250;</span>
+          <a href="#">Maria Santos</a>
+          <span class="separator">&#8250;</span>
+          <span class="current">Discharge</span>
+        </nav>
+
+        <!-- Entity Banner -->
+        <div class="entity-banner">
+          <div class="entity-info">
+            <span class="entity-name">Maria Santos</span>
+            <div class="entity-divider"></div>
+            <div class="entity-fields-row">
+              <span class="entity-field"><span class="entity-field-label">MRN:</span> 458923</span>
+              <div class="entity-divider"></div>
+              <span class="entity-field"><span class="entity-field-label">DOB:</span> 08/12/1967</span>
+              <div class="entity-divider"></div>
+              <span class="entity-field"><span class="entity-field-label">Admission:</span> 03/15/2026</span>
+              <div class="entity-divider"></div>
+              <span class="badge badge-active">Active</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Page Title -->
+        <h1 class="page-title">Patient Discharge</h1>
+
+        <!-- Validation Error -->
+        <div class="validation-error" id="validation-error" style="margin-bottom: 16px;"></div>
+
+      </div>
+
+      <!-- ═══ SPLIT PANEL ═══ -->
+      <div class="split-panel">
+
+        <!-- --- LEFT PANEL: Active Episodes of Care --- -->
+        <div class="panel-left">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h2 class="card-title">Active Episodes of Care</h2>
+                <div class="card-subtitle">Select at least one episode to discharge</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="eoc-item" id="eoc-item-1">
+                <div class="eoc-item-header" onclick="toggleEOC(this)">
+                  <input type="checkbox" id="eoc1" onclick="event.stopPropagation(); handleEOCCheck(this, 'eoc-item-1')">
+                  <div class="eoc-details">
+                    <div class="eoc-name">Home Health - Skilled Nursing</div>
+                    <div class="eoc-meta">
+                      <span class="eoc-meta-item">
+                        <span class="material-icons" style="font-size: 14px;">calendar_today</span>
+                        Started: 03/15/2026
+                      </span>
+                      <span class="eoc-meta-item">
+                        <span class="material-icons" style="font-size: 14px;">folder</span>
+                        Case #: HH-2026-0034
+                      </span>
+                    </div>
+                  </div>
+                  <div class="eoc-actions">
+                    <button class="view-details-btn" onclick="event.stopPropagation(); openSlideOver('Home Health - Skilled Nursing', 'HH-2026-0034')">View Details</button>
+                  </div>
+                </div>
+                <div class="eoc-discharge-fields" id="eoc-fields-1">
+                  <div class="eoc-field-row">
+                    <div class="eoc-field">
+                      <div class="mat-field">
+                        <label class="form-label">Discharge Date <span class="required">*</span></label>
+                        <input type="date" class="form-input" id="eoc1-discharge-date" placeholder=" " onchange="clearEOCFieldError('eoc1-discharge-date')">
+                      </div>
+                    </div>
+                    <div class="eoc-field">
+                      <div class="mat-field">
+                        <label class="form-label">Discharge Reason <span class="required">*</span></label>
+                        <select class="form-select" id="eoc1-discharge-reason" onchange="clearEOCFieldError('eoc1-discharge-reason')">
+                          <option value="" selected>Select reason...</option>
+                          <option>Goals Met</option>
+                          <option>Patient Declined Services</option>
+                          <option>Physician Orders Expired</option>
+                          <option>Transferred to Another Agency</option>
+                          <option>Hospitalized</option>
+                          <option>Deceased</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="eoc-item" id="eoc-item-2">
+                <div class="eoc-item-header" onclick="toggleEOC(this)">
+                  <input type="checkbox" id="eoc2" onclick="event.stopPropagation(); handleEOCCheck(this, 'eoc-item-2')">
+                  <div class="eoc-details">
+                    <div class="eoc-name">Physical Therapy Services</div>
+                    <div class="eoc-meta">
+                      <span class="eoc-meta-item">
+                        <span class="material-icons" style="font-size: 14px;">calendar_today</span>
+                        Started: 03/20/2026
+                      </span>
+                      <span class="eoc-meta-item">
+                        <span class="material-icons" style="font-size: 14px;">folder</span>
+                        Case #: PT-2026-0122
+                      </span>
+                    </div>
+                  </div>
+                  <div class="eoc-actions">
+                    <button class="view-details-btn" onclick="event.stopPropagation(); openSlideOver('Physical Therapy Services', 'PT-2026-0122')">View Details</button>
+                  </div>
+                </div>
+                <div class="eoc-discharge-fields" id="eoc-fields-2">
+                  <div class="eoc-field-row">
+                    <div class="eoc-field">
+                      <div class="mat-field">
+                        <label class="form-label">Discharge Date <span class="required">*</span></label>
+                        <input type="date" class="form-input" id="eoc2-discharge-date" placeholder=" " onchange="clearEOCFieldError('eoc2-discharge-date')">
+                      </div>
+                    </div>
+                    <div class="eoc-field">
+                      <div class="mat-field">
+                        <label class="form-label">Discharge Reason <span class="required">*</span></label>
+                        <select class="form-select" id="eoc2-discharge-reason" onchange="clearEOCFieldError('eoc2-discharge-reason')">
+                          <option value="" selected>Select reason...</option>
+                          <option>Goals Met</option>
+                          <option>Patient Declined Services</option>
+                          <option>Physician Orders Expired</option>
+                          <option>Transferred to Another Agency</option>
+                          <option>Hospitalized</option>
+                          <option>Deceased</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="eoc-item" id="eoc-item-3">
+                <div class="eoc-item-header" onclick="toggleEOC(this)">
+                  <input type="checkbox" id="eoc3" onclick="event.stopPropagation(); handleEOCCheck(this, 'eoc-item-3')">
+                  <div class="eoc-details">
+                    <div class="eoc-name">Occupational Therapy Services</div>
+                    <div class="eoc-meta">
+                      <span class="eoc-meta-item">
+                        <span class="material-icons" style="font-size: 14px;">calendar_today</span>
+                        Started: 03/22/2026
+                      </span>
+                      <span class="eoc-meta-item">
+                        <span class="material-icons" style="font-size: 14px;">folder</span>
+                        Case #: OT-2026-0089
+                      </span>
+                    </div>
+                  </div>
+                  <div class="eoc-actions">
+                    <button class="view-details-btn" onclick="event.stopPropagation(); openSlideOver('Occupational Therapy Services', 'OT-2026-0089')">View Details</button>
+                  </div>
+                </div>
+                <div class="eoc-discharge-fields" id="eoc-fields-3">
+                  <div class="eoc-field-row">
+                    <div class="eoc-field">
+                      <div class="mat-field">
+                        <label class="form-label">Discharge Date <span class="required">*</span></label>
+                        <input type="date" class="form-input" id="eoc3-discharge-date" placeholder=" " onchange="clearEOCFieldError('eoc3-discharge-date')">
+                      </div>
+                    </div>
+                    <div class="eoc-field">
+                      <div class="mat-field">
+                        <label class="form-label">Discharge Reason <span class="required">*</span></label>
+                        <select class="form-select" id="eoc3-discharge-reason" onchange="clearEOCFieldError('eoc3-discharge-reason')">
+                          <option value="" selected>Select reason...</option>
+                          <option>Goals Met</option>
+                          <option>Patient Declined Services</option>
+                          <option>Physician Orders Expired</option>
+                          <option>Transferred to Another Agency</option>
+                          <option>Hospitalized</option>
+                          <option>Deceased</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- --- RIGHT PANEL: Discharge Actions --- -->
+        <div class="panel-right">
+          <div class="panel-right-content" id="discharge-content">
+
+            <!-- Section 1: Documentation -->
+            <h2 class="section-title" id="documentation-section">Documentation</h2>
+            <p class="section-subtitle">Complete all required documentation before discharge</p>
+
+            <div class="doc-task" onclick="openTaskForm('care-plan')">
+              <div class="doc-task-content">
+                <div class="doc-task-name">
+                  Update Care Plans
+                  <span class="required-indicator">REQUIRED</span>
+                </div>
+                <div class="doc-task-meta">Last updated by A. Smith on 04/10/2026 at 2:34 PM</div>
+              </div>
+              <div class="doc-task-action">
+                <span class="badge badge-in-progress">In Progress</span>
+              </div>
+            </div>
+
+            <div class="doc-task" onclick="openTaskForm('outstanding-tasks')">
+              <div class="doc-task-content">
+                <div class="doc-task-name">
+                  Complete Outstanding Tasks
+                  <span class="required-indicator">REQUIRED</span>
+                </div>
+                <div class="doc-task-meta">3 tasks pending completion</div>
+              </div>
+              <div class="doc-task-action">
+                <span class="badge badge-not-started">Not Started</span>
+              </div>
+            </div>
+
+            <div class="doc-task" onclick="openTaskForm('diagnoses')">
+              <div class="doc-task-content">
+                <div class="doc-task-name">
+                  Inactivate Relevant Diagnoses
+                  <span class="required-indicator">REQUIRED</span>
+                </div>
+                <div class="doc-task-meta">No information available</div>
+              </div>
+              <div class="doc-task-action">
+                <span class="badge badge-not-started">Not Started</span>
+              </div>
+            </div>
+
+            <div class="doc-task" onclick="openTaskForm('discharge-summary')">
+              <div class="doc-task-content">
+                <div class="doc-task-name">
+                  Complete Discharge Summary
+                  <span class="required-indicator">REQUIRED</span>
+                </div>
+                <div class="doc-task-meta">No information available</div>
+              </div>
+              <div class="doc-task-action">
+                <span class="badge badge-not-started">Not Started</span>
+              </div>
+            </div>
+
+            <div class="doc-task" onclick="openTaskForm('catheter-removal')">
+              <div class="doc-task-content">
+                <div class="doc-task-name">
+                  Catheter Removal
+                  <span class="required-indicator">REQUIRED</span>
+                </div>
+                <div class="doc-task-meta">
+                  <span class="doc-task-status-user">Status: Removed by Current User on 04/28/2026</span>
+                </div>
+              </div>
+              <div class="doc-task-action">
+                <span class="badge badge-completed">Completed</span>
+              </div>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <!-- Section 2: Additional Discharge Actions -->
+            <h2 class="section-title">Additional Discharge Actions</h2>
+            <p class="section-subtitle">Select actions to trigger workflows upon discharge</p>
+
+            <div class="checkbox-item">
+              <input type="checkbox" id="action-discontinue" checked>
+              <div class="checkbox-label-group">
+                <span class="checkbox-label-primary">
+                  Discontinue Orders
+                  <span class="required-indicator">REQUIRED</span>
+                </span>
+                <span class="checkbox-label-desc">Marks all active orders for selected Episodes of Care as discontinued</span>
+              </div>
+              <button class="view-details-btn" onclick="event.stopPropagation(); openOrdersSlideOver()">View Details</button>
+            </div>
+
+            <div class="checkbox-item">
+              <input type="checkbox" id="action-equipment">
+              <div class="checkbox-label-group">
+                <span class="checkbox-label-primary">Pick Up Equipment</span>
+                <span class="checkbox-label-desc">Creates a ticket within the system for someone to schedule equipment pick-up with the patient</span>
+              </div>
+              <button class="view-details-btn" onclick="event.stopPropagation(); openEquipmentSlideOver()">View Details</button>
+            </div>
+
+            <label class="checkbox-item">
+              <input type="checkbox" id="action-outcomes">
+              <div class="checkbox-label-group">
+                <span class="checkbox-label-primary">Mark Outcomes with Stop Date</span>
+                <span class="checkbox-label-desc">Sets stop date to discharge date for all active outcomes in selected Episodes of Care</span>
+              </div>
+            </label>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ═══ STICKY FOOTER ═══ -->
+      <div class="form-footer" id="form-footer">
+        <div class="footer-left">
+          <button class="btn-text-link" onclick="cancelDischarge()">Cancel</button>
+        </div>
+        <div class="footer-right">
+          <button class="btn-outlined" onclick="saveDraft()">Save and Close</button>
+          <button class="btn-primary" onclick="generateProgressNote()">Next: Generate Progress Note</button>
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+
+  <script>
+    /* ═══ EOC Selection ═══ */
+    function toggleEOC(item) {
+      const checkbox = item.querySelector('input[type="checkbox"]');
+      checkbox.checked = !checkbox.checked;
+      item.classList.toggle('selected', checkbox.checked);
+    }
+
+    /* ═══ EOC Data Structure ═══ */
+    const eocData = {
+      'eoc1': {
+        name: 'Home Health - Skilled Nursing',
+        caseNumber: 'HH-2026-0034',
+        carePlans: [
+          {
+            name: 'Cardiac Care Plan',
+            problems: 'Heart Failure (I50.9), Fluid Retention, Reduced Exercise Tolerance',
+            goals: 'Maintain fluid balance, Reduce edema within 2 weeks, Improve exercise tolerance to 10 minutes',
+            interventions: 'Daily weight monitoring, Sodium restriction education, Medication adherence monitoring, Symptom assessment',
+            status: 'active'
+          },
+          {
+            name: 'Medication Management Plan',
+            problems: 'Polypharmacy, Medication non-adherence risk',
+            goals: '100% medication adherence, Patient verbalizes understanding of medication regimen',
+            interventions: 'Medication reconciliation, Pill organizer setup, Weekly medication review, Side effect monitoring',
+            status: 'active'
+          }
+        ],
+        diagnoses: [
+          { name: 'Congestive Heart Failure', code: 'I50.9', status: 'active', onset: '03/15/2026', severity: 'Moderate', notes: 'Patient presents with dyspnea and peripheral edema' },
+          { name: 'Type 2 Diabetes Mellitus', code: 'E11.9', status: 'active', onset: '01/20/2024', severity: 'Mild', notes: 'Well controlled on oral medications' }
+        ],
+        tasks: [
+          { subject: 'Insurance Entry', description: 'Additional information is needed for claim submission', recordType: 'Insurance', assignee: 'Jane Cooper', priority: 'Minor', dueDate: '06/19/2026', dueTime: '5:06 AM', lastUpdated: '06/19/2026', lastUpdatedBy: 'Jane Cooper' },
+          { subject: 'Authorization', description: 'Pending billing authorization', recordType: 'Authorization', assignee: 'Jane Cooper', priority: 'High', dueDate: '06/19/2026', dueTime: '5:06 AM', lastUpdated: '06/19/2026', lastUpdatedBy: 'Jane Cooper' },
+          { subject: 'Order Entry', description: 'Attach second prescription to order', recordType: 'Clinical Hold', assignee: 'Financial Department', priority: 'Medium', dueDate: '06/19/2026', dueTime: '5:06 AM', lastUpdated: '06/19/2026', lastUpdatedBy: 'Jane Cooper' }
+        ],
+        orders: [
+          'Skilled Nursing Visits - 3x per week',
+          'Physical Therapy - 2x per week',
+          'Home Health Aide - Daily',
+          'Medication Management - Weekly'
+        ],
+        equipment: [
+          'Hospital Bed (Serial: HB-8432-A)',
+          'Wheelchair (Serial: WC-2109-B)',
+          'Oxygen Concentrator (Serial: OC-5621-C)'
+        ]
+      },
+      'eoc2': {
+        name: 'Physical Therapy Services',
+        caseNumber: 'PT-2026-0122',
+        carePlans: [
+          {
+            name: 'Mobility Improvement Plan',
+            problems: 'Impaired mobility, Fall risk, Decreased lower extremity strength',
+            goals: 'Independent ambulation with walker for 50 feet, Zero falls during episode, Improve lower extremity strength by 2 grades',
+            interventions: 'Gait training, Balance exercises, Strengthening exercises, Fall prevention education',
+            status: 'completed'
+          },
+          {
+            name: 'Strength Training Plan',
+            problems: 'Generalized weakness, Deconditioning',
+            goals: 'Increase muscle strength by 1 grade in major muscle groups, Improve endurance for ADLs',
+            interventions: 'Resistance training, Progressive exercise program, Home exercise program education',
+            status: 'active'
+          }
+        ],
+        diagnoses: [
+          { name: 'Pain in right knee', code: 'M25.561', status: 'active', onset: '03/20/2026', severity: 'Moderate', notes: 'Post-operative knee pain' }
+        ],
+        tasks: [
+          { subject: 'Prescription Setup', description: 'Add dates information', recordType: 'Clinical Hold', assignee: 'Jane Cooper', priority: 'Urgent', dueDate: '06/19/2026', dueTime: '5:06 AM', lastUpdated: '06/19/2026', lastUpdatedBy: 'Jane Cooper' },
+          { subject: 'Authorization', description: 'Review payment request for authorization', recordType: 'Authorization', assignee: 'Jane Cooper', priority: 'Urgent', dueDate: '06/19/2026', dueTime: '5:06 AM', lastUpdated: '06/19/2026', lastUpdatedBy: 'Jane Cooper' }
+        ],
+        orders: [
+          'Physical Therapy Evaluation',
+          'Therapeutic Exercise - 2x per week',
+          'Gait Training - 2x per week'
+        ],
+        equipment: [
+          'Walker with Seat (Serial: WS-3401-D)',
+          'Exercise Resistance Bands (Serial: ERB-7722-E)'
+        ]
+      },
+      'eoc3': {
+        name: 'Occupational Therapy Services',
+        caseNumber: 'OT-2026-0089',
+        carePlans: [
+          {
+            name: 'ADL Improvement Plan',
+            problems: 'Decreased independence in ADLs, Fine motor deficits, Cognitive processing delays',
+            goals: 'Independent bathing with adaptive equipment, Independent dressing upper/lower body, Safe meal preparation',
+            interventions: 'ADL training with adaptive equipment, Fine motor skill exercises, Energy conservation techniques, Cognitive strategies training',
+            status: 'active'
+          }
+        ],
+        diagnoses: [
+          { name: 'Difficulty with ADLs', code: 'R41.3', status: 'active' }
+        ],
+        tasks: [],
+        orders: [
+          'Occupational Therapy Evaluation',
+          'Activities of Daily Living Training - 2x per week'
+        ],
+        equipment: [
+          'Adaptive Utensils Set (Serial: AU-9844-F)',
+          'Shower Chair (Serial: SC-1122-G)'
+        ]
+      }
+    };
+
+    /* ═══ EOC Selection Helpers ═══ */
+    function getSelectedEOCs() {
+      const checkboxes = document.querySelectorAll('.eoc-item input[type="checkbox"]:checked');
+      return Array.from(checkboxes).map(cb => {
+        const eocItem = cb.closest('.eoc-item');
+        return {
+          id: cb.id,
+          name: eocItem.querySelector('.eoc-name').textContent.trim(),
+          caseNumber: eocItem.querySelector('.eoc-meta-item:nth-child(2)').textContent.replace('Case #:', '').trim()
+        };
+      });
+    }
+
+    /* ═══ Validation ═══ */
+    function validateDischarge() {
+      const errors = [];
+
+      // Clear all previous EOC field errors
+      document.querySelectorAll('.eoc-discharge-fields .mat-field.error').forEach(field => {
+        field.classList.remove('error');
+      });
+
+      // Check if at least one EOC is selected
+      const selectedEOCs = document.querySelectorAll('.eoc-item input[type="checkbox"]:checked');
+      if (selectedEOCs.length === 0) {
+        errors.push({
+          label: 'You must select at least one Episode of Care to discharge',
+          id: 'eoc-section',
+          target: 'panel-left'
+        });
+      }
+
+      // For each selected EOC, validate discharge date and discharge reason
+      selectedEOCs.forEach(checkbox => {
+        const eocId = checkbox.id; // e.g., "eoc1", "eoc2", "eoc3"
+        const eocNumber = eocId.replace('eoc', '');
+        const eocItem = checkbox.closest('.eoc-item');
+        const eocName = eocItem.querySelector('.eoc-name').textContent.trim();
+
+        const dischargeDateField = document.getElementById(eocId + '-discharge-date');
+        const dischargeReasonField = document.getElementById(eocId + '-discharge-reason');
+
+        // Validate discharge date
+        if (!dischargeDateField || !dischargeDateField.value || dischargeDateField.value.trim() === '') {
+          if (dischargeDateField) {
+            const matField = dischargeDateField.closest('.mat-field');
+            if (matField) {
+              matField.classList.add('error');
+            }
+          }
+          errors.push({
+            label: eocName + ' is missing a discharge date',
+            id: eocId + '-discharge-date',
+            target: eocId + '-discharge-date'
+          });
+        }
+
+        // Validate discharge reason
+        if (!dischargeReasonField || !dischargeReasonField.value || dischargeReasonField.value.trim() === '') {
+          if (dischargeReasonField) {
+            const matField = dischargeReasonField.closest('.mat-field');
+            if (matField) {
+              matField.classList.add('error');
+            }
+          }
+          errors.push({
+            label: eocName + ' is missing a discharge reason',
+            id: eocId + '-discharge-reason',
+            target: eocId + '-discharge-reason'
+          });
+        }
+      });
+
+      // Check if all required documentation is completed
+      const docTasks = document.querySelectorAll('.doc-task');
+      const incompleteTasks = [];
+      docTasks.forEach(task => {
+        const badge = task.querySelector('.badge');
+        const taskName = task.querySelector('.doc-task-name').textContent.trim();
+        if (!badge.classList.contains('badge-completed')) {
+          const cleanName = taskName.replace('REQUIRED', '').trim();
+          incompleteTasks.push(cleanName);
+        }
+      });
+
+      if (incompleteTasks.length > 0) {
+        errors.push({
+          label: 'The following required documentation must be completed: ' + incompleteTasks.join(', '),
+          id: 'documentation-section',
+          target: 'documentation-section'
+        });
+      }
+
+      // Check if required actions are selected
+      if (!document.getElementById('action-discontinue').checked) {
+        errors.push({
+          label: 'Discontinue Orders is required for discharge',
+          id: 'actions-section',
+          target: 'action-discontinue'
+        });
+      }
+
+      return errors;
+    }
+
+    function showValidationError(errors) {
+      const errorDiv = document.getElementById('validation-error');
+
+      const errorLinks = errors.map(error =>
+        '<li><a href="#" onclick="navigateToDischargeError(\'' + error.target + '\'); return false;">' +
+        error.label + '</a></li>'
+      ).join('');
+
+      errorDiv.innerHTML = `
+        <span class="material-icons error-icon">warning</span>
+        <div class="error-content">
+          <p class="error-title">There is a problem. Review your information and try again.</p>
+          <ul>${errorLinks}</ul>
+        </div>
+      `;
+      errorDiv.style.display = 'flex';
+      errorDiv.classList.add('show');
+
+      // Scroll main content to top to show error banner
+      document.querySelector('.main-content').scrollTop = 0;
+    }
+
+    function navigateToDischargeError(targetId) {
+      const targets = {
+        'panel-left': document.querySelector('.panel-left'),
+        'documentation-section': document.getElementById('documentation-section'),
+        'action-discontinue': document.getElementById('action-discontinue')
+      };
+
+      // Check if it's an EOC field error (eoc1-discharge-date, eoc1-discharge-reason, etc.)
+      if (targetId.startsWith('eoc')) {
+        const fieldElement = document.getElementById(targetId);
+        if (fieldElement) {
+          // Ensure the EOC item is expanded
+          const eocItem = fieldElement.closest('.eoc-item');
+          if (eocItem && !eocItem.classList.contains('expanded')) {
+            eocItem.classList.add('expanded');
+          }
+
+          // Scroll to the field and focus it
+          setTimeout(() => {
+            fieldElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            fieldElement.focus();
+          }, 100);
+        }
+        return;
+      }
+
+      const target = targets[targetId];
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        // Focus the element if it's focusable
+        if (target.focus) {
+          setTimeout(() => target.focus(), 300);
+        }
+      }
+    }
+
+    function clearValidationError() {
+      const errorDiv = document.getElementById('validation-error');
+      if (errorDiv) {
+        errorDiv.classList.remove('show');
+        errorDiv.style.display = 'none';
+      }
+    }
+
+    function clearEOCFieldError(fieldId) {
+      const field = document.getElementById(fieldId);
+      if (field) {
+        const matField = field.closest('.mat-field');
+        if (matField && matField.classList.contains('error')) {
+          matField.classList.remove('error');
+        }
+      }
+    }
+
+    /* ═══ Footer Actions ═══ */
+    function cancelDischarge() {
+      if (confirm('Are you sure you want to discard the discharge details? All unsaved changes will be lost.')) {
+        window.location.href = '#'; // Simulated navigation
+      }
+    }
+
+    function saveDraft() {
+      clearValidationError();
+      alert('Discharge saved as draft. You can return to complete it later.');
+      // In production: save to backend, show success message, navigate away
+    }
+
+    function generateProgressNote() {
+      clearValidationError();
+      const errors = validateDischarge();
+      if (errors.length > 0) {
+        showValidationError(errors);
+        return;
+      }
+      // Validation passed - navigate to progress note
+      window.location.href = 'progress-note.html';
+    }
+
+    /* ═══ EOC Interactions ═══ */
+    function toggleEOC(header) {
+      const eocItem = header.closest('.eoc-item');
+      const checkbox = header.querySelector('input[type="checkbox"]');
+      const dischargeFields = eocItem.querySelector('.eoc-discharge-fields');
+
+      // Toggle the visual expansion
+      eocItem.classList.toggle('expanded');
+
+      // If expanded and checkbox is checked, show discharge fields
+      if (eocItem.classList.contains('expanded') && checkbox.checked) {
+        dischargeFields.classList.add('show');
+      }
+    }
+
+    function handleEOCCheck(checkbox, itemId) {
+      const eocItem = document.getElementById(itemId);
+      const dischargeFields = eocItem.querySelector('.eoc-discharge-fields');
+
+      // Extract EOC number from itemId (e.g., 'eoc-item-1' -> '1')
+      const eocNum = itemId.split('-').pop();
+      const dateInput = document.getElementById(`eoc${eocNum}-discharge-date`);
+
+      if (checkbox.checked) {
+        // Show discharge fields when checked
+        dischargeFields.classList.add('show');
+        eocItem.classList.add('expanded');
+
+        // Set discharge date to today's date and prevent future dates
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        const todayString = `${year}-${month}-${day}`;
+        dateInput.value = todayString;
+        dateInput.max = todayString;
+      } else {
+        // Hide discharge fields when unchecked
+        dischargeFields.classList.remove('show');
+
+        // Clear discharge date and reason
+        dateInput.value = '';
+        const reasonSelect = document.getElementById(`eoc${eocNum}-discharge-reason`);
+        if (reasonSelect) {
+          reasonSelect.value = '';
+        }
+      }
+
+      // Don't clear validation error - let banner persist until next save attempt
+    }
+
+    function openSlideOver(name, caseNumber) {
+      document.getElementById('slide-over-title-text').textContent = name;
+      document.getElementById('eoc-detail-case').textContent = caseNumber;
+      document.getElementById('slide-over-overlay').style.display = 'block';
+      document.getElementById('slide-over-panel').style.right = '0';
+    }
+
+    function closeSlideOver() {
+      document.getElementById('slide-over-panel').style.right = '-500px';
+      setTimeout(() => {
+        document.getElementById('slide-over-overlay').style.display = 'none';
+      }, 300);
+    }
+
+    function openOrdersSlideOver() {
+      // Get selected EOCs and build orders HTML
+      const selectedEOCs = getSelectedEOCs();
+
+      // If no EOCs selected, show empty state
+      if (selectedEOCs.length === 0) {
+        document.querySelector('#orders-slide-over-panel .slide-over-body').innerHTML = `
+          <div style="text-align: center; padding: 64px 24px;">
+            <span class="material-icons" style="font-size: 64px; color: var(--wsc-system-neutral-variant); margin-bottom: 16px;">assignment_late</span>
+            <h3 style="font-size: 18px; font-weight: 600; color: var(--wsc-system-on-surface); margin-bottom: 8px;">No Episodes of Care Selected</h3>
+            <p style="font-size: 14px; color: var(--wsc-system-on-surface-variant); max-width: 400px; margin: 0 auto;">
+              Please select at least one Episode of Care from the list to view orders for discontinuation.
+            </p>
+          </div>
+        `;
+        document.getElementById('orders-slide-over-overlay').style.display = 'block';
+        document.getElementById('orders-slide-over-panel').style.right = '0';
+        return;
+      }
+
+      let ordersHTML = `
+        <p style="color: var(--wsc-system-on-surface-variant); margin-bottom: 20px; font-size: 13px;">
+          All active orders for selected Episodes of Care will be marked as discontinued upon discharge.
+        </p>
+      `;
+
+      selectedEOCs.forEach(eoc => {
+        const data = eocData[eoc.id];
+        if (!data || !data.orders || data.orders.length === 0) return;
+
+        ordersHTML += `
+        <div style="margin-bottom: 24px;">
+          <h3 style="font-size: 14px; font-weight: 600; color: var(--wsc-system-on-primary-container); margin-bottom: 12px;">${data.name} (${data.caseNumber})</h3>
+          <ul style="margin: 0; padding-left: 20px; list-style: disc;">
+            ${data.orders.map(order => `
+            <li style="margin-bottom: 8px; font-size: 13px; color: var(--wsc-system-on-surface);">${order}</li>
+            `).join('')}
+          </ul>
+        </div>`;
+      });
+
+      // Populate the slide-over body
+      document.querySelector('#orders-slide-over-panel .slide-over-body').innerHTML = ordersHTML;
+
+      document.getElementById('orders-slide-over-overlay').style.display = 'block';
+      document.getElementById('orders-slide-over-panel').style.right = '0';
+    }
+
+    function closeOrdersSlideOver() {
+      document.getElementById('orders-slide-over-panel').style.right = '-500px';
+      setTimeout(() => {
+        document.getElementById('orders-slide-over-overlay').style.display = 'none';
+      }, 300);
+    }
+
+    function openEquipmentSlideOver() {
+      const selectedEOCs = getSelectedEOCs();
+
+      // If no EOCs selected, show empty state
+      if (selectedEOCs.length === 0) {
+        document.querySelector('#equipment-slide-over-panel .slide-over-body').innerHTML = `
+          <div style="text-align: center; padding: 64px 24px;">
+            <span class="material-icons" style="font-size: 64px; color: var(--wsc-system-neutral-variant); margin-bottom: 16px;">assignment_late</span>
+            <h3 style="font-size: 18px; font-weight: 600; color: var(--wsc-system-on-surface); margin-bottom: 8px;">No Episodes of Care Selected</h3>
+            <p style="font-size: 14px; color: var(--wsc-system-on-surface-variant); max-width: 400px; margin: 0 auto;">
+              Please select at least one Episode of Care from the list to view equipment for pick-up.
+            </p>
+          </div>
+        `;
+        document.getElementById('equipment-slide-over-overlay').style.display = 'block';
+        document.getElementById('equipment-slide-over-panel').style.right = '0';
+        return;
+      }
+
+      let equipmentHTML = `
+        <p style="color: var(--wsc-system-on-surface-variant); margin-bottom: 20px; font-size: 13px;">
+          A pick-up ticket will be created for all equipment associated with selected Episodes of Care.
+        </p>
+      `;
+
+      selectedEOCs.forEach(eoc => {
+        const data = eocData[eoc.id];
+        if (!data || !data.equipment || data.equipment.length === 0) return;
+
+        equipmentHTML += `
+        <div style="margin-bottom: 24px;">
+          <h3 style="font-size: 14px; font-weight: 600; color: var(--wsc-system-on-primary-container); margin-bottom: 12px;">${data.name} (${data.caseNumber})</h3>
+          <ul style="margin: 0; padding-left: 20px; list-style: disc;">
+            ${data.equipment.map(item => `
+            <li style="margin-bottom: 8px; font-size: 13px; color: var(--wsc-system-on-surface);">${item}</li>
+            `).join('')}
+          </ul>
+        </div>`;
+      });
+
+      document.querySelector('#equipment-slide-over-panel .slide-over-body').innerHTML = equipmentHTML;
+      document.getElementById('equipment-slide-over-overlay').style.display = 'block';
+      document.getElementById('equipment-slide-over-panel').style.right = '0';
+    }
+
+    function closeEquipmentSlideOver() {
+      document.getElementById('equipment-slide-over-panel').style.right = '-500px';
+      setTimeout(() => {
+        document.getElementById('equipment-slide-over-overlay').style.display = 'none';
+      }, 300);
+    }
+
+    /* ═══ Documentation Task Modals ═══ */
+    function openTaskForm(taskName) {
+      if (taskName === 'catheter-removal') {
+        // Show catheter-specific modal
+        document.getElementById('catheter-modal').style.display = 'flex';
+        return;
+      }
+
+      // Get selected EOCs for filtering content
+      const selectedEOCs = getSelectedEOCs();
+
+      // Set the modal title
+      const titles = {
+        'care-plan': 'Update Care Plans',
+        'outstanding-tasks': 'Complete Outstanding Tasks',
+        'diagnoses': 'Inactivate Relevant Diagnoses',
+        'discharge-summary': 'Complete Discharge Summary'
+      };
+      document.getElementById('task-modal-title').textContent = titles[taskName] || taskName;
+
+      // Populate modal content based on task type
+      const modalBody = document.getElementById('task-modal-body');
+      const modalFooter = document.getElementById('task-modal-footer');
+
+      // If no EOCs selected, show message
+      if (selectedEOCs.length === 0) {
+        modalBody.innerHTML = `
+          <div style="text-align: center; padding: 64px 24px;">
+            <span class="material-icons" style="font-size: 64px; color: var(--wsc-system-neutral-variant); margin-bottom: 16px;">assignment_late</span>
+            <h3 style="font-size: 18px; font-weight: 600; color: var(--wsc-system-on-surface); margin-bottom: 8px;">No Episodes of Care Selected</h3>
+            <p style="font-size: 14px; color: var(--wsc-system-on-surface-variant); max-width: 400px; margin: 0 auto;">
+              Please select at least one Episode of Care from the list to view and complete this documentation.
+            </p>
+          </div>
+        `;
+        modalFooter.innerHTML = `
+          <button class="btn-primary" onclick="closeTaskModal()">OK</button>
+        `;
+        document.getElementById('task-modal').style.display = 'flex';
+        return;
+      }
+
+      if (taskName === 'care-plan') {
+        // Build care plans HTML for selected EOCs only
+        let carePlansHTML = '';
+        selectedEOCs.forEach(eoc => {
+          const data = eocData[eoc.id];
+          if (!data || !data.carePlans || data.carePlans.length === 0) return;
+
+          carePlansHTML += `
+          <div style="margin-bottom: 24px;">
+            <h3 style="font-size: 14px; font-weight: 600; color: var(--wsc-system-on-primary-container); margin-bottom: 12px;">${data.name} (${data.caseNumber})</h3>
+            ${data.carePlans.map((plan, idx) => `
+            <div class="care-plan-item" style="margin-bottom: 12px;">
+              <div class="care-plan-header" onclick="toggleCarePlanDetails(this)">
+                <span class="care-plan-toggle">›</span>
+                <span class="care-plan-name">${plan.name} <span class="required">*</span></span>
+                <span class="badge badge-${plan.status} care-plan-status-badge" data-status="${plan.status}">${plan.status.charAt(0).toUpperCase() + plan.status.slice(1)}</span>
+              </div>
+              <div class="care-plan-content">
+                <div class="care-plan-details">
+                  <div class="detail-section">
+                    <strong>Problems:</strong> ${plan.problems}
+                  </div>
+                  <div class="detail-section">
+                    <strong>Goals:</strong> ${plan.goals}
+                  </div>
+                  <div class="detail-section">
+                    <strong>Interventions:</strong> ${plan.interventions}
+                  </div>
+                </div>
+                <div class="mat-field">
+                  <label class="form-label">Status <span class="required">*</span></label>
+                  <select class="form-select care-plan-status" data-care-plan="${eoc.id}-plan-${idx}" onchange="updateCarePlanStatusBadge(this)">
+                    <option value="">Select status...</option>
+                    <option value="active" ${plan.status === 'active' ? 'selected' : ''}>Active</option>
+                    <option value="completed" ${plan.status === 'completed' ? 'selected' : ''}>Completed</option>
+                    <option value="discontinued" ${plan.status === 'discontinued' ? 'selected' : ''}>Discontinued</option>
+                  </select>
+                </div>
+                <div class="mat-field">
+                  <label class="form-label">Problem Comments</label>
+                  <textarea class="form-textarea" rows="3" placeholder=" "></textarea>
+                </div>
+                <div class="mat-field">
+                  <label class="form-label">Goals Comments</label>
+                  <textarea class="form-textarea" rows="3" placeholder=" "></textarea>
+                </div>
+              </div>
+            </div>
+            `).join('')}
+          </div>`;
+        });
+
+        modalBody.innerHTML = `
+          <p style="color: var(--wsc-system-on-surface-variant); margin-bottom: 20px; font-size: 13px;">
+            Update the status for each care plan associated with the selected Episodes of Care.
+          </p>
+
+          <div class="validation-error" id="care-plan-validation" style="display: none; margin-bottom: 16px;"></div>
+
+          ${carePlansHTML}
+        `;
+
+        modalFooter.innerHTML = `
+          <button class="btn-text-link" onclick="closeTaskModal()">Cancel</button>
+          <button class="btn-outlined" onclick="saveCarePlanProgress()">Save</button>
+          <button class="btn-primary" onclick="completeCarePlanTask()">Mark as Completed</button>
+        `;
+      } else if (taskName === 'discharge-summary') {
+        modalBody.innerHTML = `
+          <p style="color: var(--wsc-system-on-surface-variant); margin-bottom: 20px; font-size: 13px;">
+            Complete the discharge summary documentation for the selected Episodes of Care.
+          </p>
+
+          <div class="validation-error" id="discharge-summary-validation" style="display: none; margin-bottom: 16px;"></div>
+
+          <div style="margin-bottom: 16px;">
+            <h3 style="font-size: 13px; font-weight: 600; color: var(--wsc-system-on-surface-variant); margin-bottom: 12px;">Patient Information</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+              <div style="font-size: 13px;">
+                <div style="color: var(--wsc-system-on-surface-variant); margin-bottom: 4px;">Address</div>
+                <div style="color: var(--wsc-system-on-surface);">313 Henderson Drive<br>Philadelphia, PA 19151</div>
+              </div>
+              <div style="font-size: 13px;">
+                <div style="color: var(--wsc-system-on-surface-variant); margin-bottom: 4px;">Phone</div>
+                <div style="color: var(--wsc-system-on-surface);">(267) 983-8044</div>
+              </div>
+            </div>
+            <div style="font-size: 13px; margin-bottom: 16px;">
+              <div style="color: var(--wsc-system-on-surface-variant); margin-bottom: 4px;">Diagnosis</div>
+              <div style="color: var(--wsc-system-on-surface);">Endometriosis of uterus (N80.0), Heart Failure (I50.9)</div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div style="font-size: 13px;">
+                <div style="color: var(--wsc-system-on-surface-variant); margin-bottom: 4px;">Start of Care</div>
+                <div style="color: var(--wsc-system-on-surface);">01/29/2024</div>
+              </div>
+              <div class="mat-field">
+                <label class="form-label">Last Visit <span class="required">*</span></label>
+                <input type="date" class="form-input" id="last-visit-date" placeholder=" " onchange="clearDischargeSummaryFieldError('last-visit-date')">
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 16px;">
+            <div class="mat-field">
+              <label class="form-label">Discharge Date <span class="required">*</span></label>
+              <input type="date" class="form-input" id="discharge-summary-date" placeholder=" " value="2024-04-28" onchange="clearDischargeSummaryFieldError('discharge-summary-date')">
+            </div>
+          </div>
+
+          <div style="margin-bottom: 16px;">
+            <div class="mat-field">
+              <label class="form-label">Client Progress During Therapy</label>
+              <textarea class="form-textarea" rows="4" placeholder=" "></textarea>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 16px;">
+            <div class="mat-field">
+              <label class="form-label">Services and Care Provided to Client</label>
+              <textarea class="form-textarea" rows="4" placeholder=" "></textarea>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 16px;">
+            <div class="mat-field">
+              <label class="form-label">Clinical Summary</label>
+              <textarea class="form-textarea" rows="4" placeholder=" "></textarea>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 16px;">
+            <div class="mat-field">
+              <label class="form-label">Medical History</label>
+              <textarea class="form-textarea" rows="4" placeholder=" "></textarea>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+            <div class="mat-field">
+              <label class="form-label">Reason for Discharge <span class="required">*</span></label>
+              <select class="form-select" id="discharge-reason" onchange="clearDischargeSummaryFieldError('discharge-reason')">
+                <option value="">Select reason...</option>
+                <option value="goals-met">Goals Met</option>
+                <option value="patient-declined">Patient Declined Services</option>
+                <option value="physician-order">Physician Order</option>
+                <option value="transferred">Transferred to Another Facility</option>
+                <option value="deceased">Deceased</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="mat-field">
+              <label class="form-label">Status at Discharge <span class="required">*</span></label>
+              <select class="form-select" id="discharge-status" onchange="clearDischargeSummaryFieldError('discharge-status')">
+                <option value="">Select status...</option>
+                <option value="stable">Stable</option>
+                <option value="improved">Improved</option>
+                <option value="unchanged">Unchanged</option>
+                <option value="declined">Declined</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+            <div class="mat-field">
+              <label class="form-label">Weight at Discharge (lbs)</label>
+              <input type="number" class="form-input" placeholder=" " value="0">
+            </div>
+            <div class="mat-field">
+              <label class="form-label">Acuity at Discharge <span class="required">*</span></label>
+              <select class="form-select" id="discharge-acuity" onchange="clearDischargeSummaryFieldError('discharge-acuity')">
+                <option value="">Select acuity...</option>
+                <option value="asymptomatic">Asymptomatic</option>
+                <option value="bedridden">Bedridden</option>
+                <option value="deceased">Deceased</option>
+                <option value="symptomatic-ambulatory">Symptomatic-fully ambulatory</option>
+                <option value="symptomatic-bed-less-50">Symptomatic-in bed &lt;50% of day</option>
+                <option value="symptomatic-bed-more-50">Symptomatic-in bed &gt;50% of day not bedridden</option>
+                <option value="unknown">Unknown</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 16px;">
+            <label class="checkbox-item">
+              <input type="checkbox" id="copy-to-prescriber">
+              <span class="checkbox-label">Copy of Discharge Summary to Prescriber</span>
+            </label>
+          </div>
+
+          <div style="margin-bottom: 16px;">
+            <label class="checkbox-item">
+              <input type="checkbox" id="discharge-instructions-given">
+              <span class="checkbox-label">Discharge Instructions Given</span>
+            </label>
+          </div>
+        `;
+
+        modalFooter.innerHTML = `
+          <button class="btn-text-link" onclick="closeTaskModal()">Cancel</button>
+          <button class="btn-outlined" onclick="saveDischargeSummaryProgress()">Save</button>
+          <button class="btn-primary" onclick="completeDischargeSummaryTask()">Mark as Completed</button>
+        `;
+      } else if (taskName === 'diagnoses') {
+        // Get today's date in YYYY-MM-DD format for default End Date
+        const today = new Date().toISOString().split('T')[0];
+
+        // Build diagnoses HTML for selected EOCs only
+        let diagnosesHTML = '';
+        selectedEOCs.forEach(eoc => {
+          const data = eocData[eoc.id];
+          if (!data || !data.diagnoses || data.diagnoses.length === 0) return;
+
+          diagnosesHTML += `
+          <div style="margin-bottom: 24px;">
+            <h3 style="font-size: 14px; font-weight: 600; color: var(--wsc-system-on-primary-container); margin-bottom: 12px;">${data.name} (${data.caseNumber})</h3>
+            ${data.diagnoses.map((diagnosis, idx) => `
+            <div class="diagnosis-item" style="margin-bottom: 12px;">
+              <div class="diagnosis-header" onclick="toggleDiagnosisDetails(this)">
+                <span class="diagnosis-toggle">›</span>
+                <span class="diagnosis-name">${diagnosis.code} - ${diagnosis.name} <span class="required">*</span></span>
+                <span class="badge badge-inactive diagnosis-status-badge" data-status="inactive">Inactive</span>
+              </div>
+              <div class="diagnosis-content">
+                <div style="background: var(--wsc-system-surface-container-low); padding: 12px; border-radius: 4px; margin-bottom: 12px; font-size: 13px;">
+                  <div style="margin-bottom: 8px;"><strong>Onset Date:</strong> ${diagnosis.onset}</div>
+                  <div style="margin-bottom: 8px;"><strong>Severity:</strong> ${diagnosis.severity}</div>
+                  <div><strong>Notes:</strong> ${diagnosis.notes}</div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                  <div class="mat-field">
+                    <label class="form-label">Status <span class="required">*</span></label>
+                    <select class="form-select diagnosis-status" onchange="updateDiagnosisBadge(this); clearDiagnosisFieldError(this)">
+                      <option value="">Select status...</option>
+                      <option value="inactive" selected>Inactive</option>
+                      <option value="remission">Remission</option>
+                      <option value="resolved">Resolved</option>
+                    </select>
+                  </div>
+                  <div class="mat-field">
+                    <label class="form-label">End Date <span class="required">*</span></label>
+                    <input type="date" class="form-input diagnosis-end-date" value="${today}" onchange="clearDiagnosisFieldError(this)">
+                  </div>
+                </div>
+              </div>
+            </div>
+            `).join('')}
+          </div>`;
+        });
+
+        modalBody.innerHTML = `
+          <p style="color: var(--wsc-system-on-surface-variant); margin-bottom: 20px; font-size: 13px;">
+            Update the status for each diagnosis associated with the selected Episodes of Care.
+          </p>
+
+          <div class="validation-error" id="diagnoses-validation" style="display: none; margin-bottom: 16px;"></div>
+
+          ${diagnosesHTML}
+        `;
+
+        modalFooter.innerHTML = `
+          <button class="btn-text-link" onclick="closeTaskModal()">Cancel</button>
+          <button class="btn-outlined" onclick="saveDiagnosisProgress()">Save</button>
+          <button class="btn-primary" onclick="completeDiagnosisTask()">Mark as Completed</button>
+        `;
+      } else if (taskName === 'outstanding-tasks') {
+        // Add wide modal class for table layout
+        document.querySelector('#task-modal .modal-dialog').classList.add('modal-wide');
+
+        // Build tasks HTML for selected EOCs only
+        let tasksHTML = '';
+        let checkboxIndex = 0;
+        selectedEOCs.forEach(eoc => {
+          const data = eocData[eoc.id];
+          if (!data || !data.tasks || data.tasks.length === 0) return;
+
+          tasksHTML += `
+          <div style="margin-bottom: 24px;">
+            <h3 style="font-size: 14px; font-weight: 600; color: var(--wsc-system-on-primary-container); margin-bottom: 12px;">${data.name} (${data.caseNumber})</h3>
+            <table class="tasks-table">
+              <thead>
+                <tr>
+                  <th style="width: 40px;"></th>
+                  <th style="width: 120px;">Due Date</th>
+                  <th>Subject / Description</th>
+                  <th style="width: 140px;">Record Type</th>
+                  <th style="width: 150px;">Assignee(s)</th>
+                  <th style="width: 100px;">Priority</th>
+                  <th style="width: 180px;">Last Updated</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${data.tasks.map(task => {
+                  const currentIndex = checkboxIndex++;
+                  return `
+                <tr>
+                  <td><input type="checkbox" class="task-checkbox" ${checkedTasks.has(currentIndex) ? 'checked' : ''}></td>
+                  <td>${task.dueDate}<br><span style="font-size: 12px; color: var(--wsc-system-on-surface-variant);">${task.dueTime}</span></td>
+                  <td>
+                    <div style="font-weight: 500; margin-bottom: 4px;">${task.subject}</div>
+                    <div style="font-size: 13px; color: var(--wsc-system-on-surface-variant);">${task.description}</div>
+                  </td>
+                  <td>${task.recordType}</td>
+                  <td>${task.assignee}</td>
+                  <td><span class="badge badge-priority-${task.priority.toLowerCase()}">${task.priority}</span></td>
+                  <td>${task.lastUpdated}<br><span style="font-size: 12px; color: var(--wsc-system-on-surface-variant);">${task.lastUpdatedBy}</span></td>
+                </tr>
+                `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>`;
+        });
+
+        modalBody.innerHTML = `
+          <p style="color: var(--wsc-system-on-surface-variant); margin-bottom: 20px; font-size: 13px;">
+            Select the tasks you want to mark as completed for the selected Episodes of Care.
+          </p>
+
+          <div class="validation-error" id="tasks-validation" style="display: none; margin-bottom: 16px;"></div>
+
+          ${tasksHTML}
+        `;
+
+        modalFooter.innerHTML = `
+          <button class="btn-text-link" onclick="closeTaskModal()">Cancel</button>
+          <button class="btn-outlined" onclick="saveOutstandingTasksProgress()">Save</button>
+          <button class="btn-primary" onclick="completeOutstandingTasks()">Mark as Completed</button>
+        `;
+      } else {
+        // Placeholder for other tasks
+        modalBody.innerHTML = `
+          <p style="color: var(--wsc-system-on-surface-variant); margin-bottom: 20px;">
+            This modal content will be designed next.
+          </p>
+        `;
+        modalFooter.innerHTML = `
+          <button class="btn-text-link" onclick="closeTaskModal()">Cancel</button>
+          <button class="btn-primary" onclick="saveTaskForm()">Save</button>
+        `;
+      }
+
+      // Show the modal
+      document.getElementById('task-modal').style.display = 'flex';
+    }
+
+    function closeTaskModal() {
+      // Clear error states
+      document.querySelectorAll('.care-plan-item.has-error').forEach(item => {
+        item.classList.remove('has-error');
+        item.removeAttribute('data-error-id');
+      });
+      document.querySelectorAll('.diagnosis-item.has-error').forEach(item => {
+        item.classList.remove('has-error');
+        item.removeAttribute('data-error-id');
+      });
+      document.querySelectorAll('.mat-field.error').forEach(field => {
+        field.classList.remove('error');
+      });
+
+      // Clear discharge summary error IDs and styling
+      document.querySelectorAll('[data-error-id^="ds-error-"]').forEach(element => {
+        element.removeAttribute('data-error-id');
+        const matField = element.closest('.mat-field');
+        if (matField) {
+          matField.classList.remove('error');
+        }
+      });
+
+      // Clear validation banners
+      const carePlanValidation = document.getElementById('care-plan-validation');
+      const dischargeSummaryValidation = document.getElementById('discharge-summary-validation');
+      const catheterValidation = document.getElementById('catheter-validation');
+      const diagnosesValidation = document.getElementById('diagnoses-validation');
+      const tasksValidation = document.getElementById('tasks-validation');
+      if (carePlanValidation) {
+        carePlanValidation.style.display = 'none';
+        carePlanValidation.classList.remove('show');
+      }
+      if (dischargeSummaryValidation) {
+        dischargeSummaryValidation.style.display = 'none';
+        dischargeSummaryValidation.classList.remove('show');
+      }
+      if (catheterValidation) {
+        catheterValidation.style.display = 'none';
+        catheterValidation.classList.remove('show');
+      }
+      if (diagnosesValidation) {
+        diagnosesValidation.style.display = 'none';
+        diagnosesValidation.classList.remove('show');
+      }
+      if (tasksValidation) {
+        tasksValidation.style.display = 'none';
+        tasksValidation.classList.remove('show');
+      }
+
+      // Remove modal-wide class when closing (used for outstanding tasks)
+      const modalDialog = document.querySelector('#task-modal .modal-dialog');
+      if (modalDialog) {
+        modalDialog.classList.remove('modal-wide');
+      }
+
+      document.getElementById('task-modal').style.display = 'none';
+    }
+
+    function closeCatheterModal() {
+      // Clear error states
+      document.querySelectorAll('[data-error-id^="catheter-error-"]').forEach(element => {
+        element.removeAttribute('data-error-id');
+        const matField = element.closest('.mat-field');
+        if (matField) {
+          matField.classList.remove('error');
+        }
+      });
+
+      // Clear validation banner
+      const validationDiv = document.getElementById('catheter-validation');
+      if (validationDiv) {
+        validationDiv.style.display = 'none';
+        validationDiv.classList.remove('show');
+      }
+
+      document.getElementById('catheter-modal').style.display = 'none';
+    }
+
+    function onCatheterStatusChange() {
+      const status = document.getElementById('catheter-status-select').value;
+      const reasonField = document.getElementById('catheter-reason-field');
+      const statusSelect = document.getElementById('catheter-status-select');
+
+      // Clear error state when user selects a value
+      if (status) {
+        statusSelect.removeAttribute('data-error-id');
+        const matField = statusSelect.closest('.mat-field');
+        if (matField) {
+          matField.classList.remove('error');
+        }
+      }
+
+      if (status === 'not-removed') {
+        reasonField.style.display = 'block';
+      } else {
+        reasonField.style.display = 'none';
+      }
+    }
+
+    /* ═══ Catheter Removal Functions ═══ */
+    function saveCatheterProgress() {
+      // Clear validation banner and error IDs
+      const validationDiv = document.getElementById('catheter-validation');
+      if (validationDiv) {
+        validationDiv.style.display = 'none';
+        validationDiv.classList.remove('show');
+      }
+
+      document.querySelectorAll('[data-error-id^="catheter-error-"]').forEach(element => {
+        element.removeAttribute('data-error-id');
+        const matField = element.closest('.mat-field');
+        if (matField) {
+          matField.classList.remove('error');
+        }
+      });
+
+      updateCatheterTask('In Progress', 'badge-in-progress');
+      closeCatheterModal();
+    }
+
+    function completeCatheterTask() {
+      // Clear previous validation and error states
+      const validationDiv = document.getElementById('catheter-validation');
+      validationDiv.style.display = 'none';
+      validationDiv.classList.remove('show');
+
+      // Clear previous error IDs and styling
+      document.querySelectorAll('[data-error-id^="catheter-error-"]').forEach(element => {
+        element.removeAttribute('data-error-id');
+        const matField = element.closest('.mat-field');
+        if (matField) {
+          matField.classList.remove('error');
+        }
+      });
+
+      const status = document.getElementById('catheter-status-select').value;
+      const reason = document.getElementById('catheter-reason-input').value;
+
+      // Validate
+      const errors = [];
+
+      if (!status) {
+        const statusField = document.getElementById('catheter-status-select');
+        statusField.setAttribute('data-error-id', 'catheter-error-0');
+        const matField = statusField.closest('.mat-field');
+        if (matField) {
+          matField.classList.add('error');
+        }
+        errors.push({
+          label: 'Status is required',
+          id: 'catheter-error-0'
+        });
+      }
+
+      if (status === 'not-removed' && !reason.trim()) {
+        const reasonField = document.getElementById('catheter-reason-input');
+        reasonField.setAttribute('data-error-id', 'catheter-error-1');
+        const matField = reasonField.closest('.mat-field');
+        if (matField) {
+          matField.classList.add('error');
+        }
+        errors.push({
+          label: 'Reason for Non-Removal is required',
+          id: 'catheter-error-1'
+        });
+      }
+
+      if (errors.length > 0) {
+        const errorLinks = errors.map(error =>
+          '<li><a href="#" onclick="navigateToCatheterError(\'' + error.id + '\'); return false;">' +
+          error.label + '</a></li>'
+        ).join('');
+
+        validationDiv.innerHTML = `
+          <span class="material-icons error-icon">warning</span>
+          <div class="error-content">
+            <p class="error-title">There is a problem. Review your information and try again.</p>
+            <ul>${errorLinks}</ul>
+          </div>
+        `;
+        validationDiv.style.display = 'flex';
+        validationDiv.classList.add('show');
+
+        // Scroll to top of modal to show error banner
+        const modalBody = document.querySelector('#catheter-modal .modal-body');
+        if (modalBody) {
+          modalBody.scrollTop = 0;
+        }
+
+        return;
+      }
+
+      // Validation passed - update task status with status information
+      const statusText = status === 'removed' ? 'Removed' : 'Not Removed';
+      updateCatheterTask('Completed', 'badge-completed', statusText);
+      closeCatheterModal();
+    }
+
+    function updateCatheterTask(statusText, badgeClass, catheterStatus) {
+      const docTasks = document.querySelectorAll('.doc-task');
+      docTasks.forEach(task => {
+        const taskName = task.querySelector('.doc-task-name').textContent.trim();
+        if (taskName.includes('Catheter Removal')) {
+          const badge = task.querySelector('.badge');
+          const statusUser = task.querySelector('.doc-task-status-user');
+
+          badge.textContent = statusText;
+          badge.className = 'badge ' + badgeClass;
+
+          if (catheterStatus) {
+            statusUser.textContent = 'Status: ' + catheterStatus + ' by Current User on ' + new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
+          } else {
+            statusUser.textContent = 'Last updated by Current User on ' + new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
+          }
+          statusUser.style.display = 'block';
+        }
+      });
+    }
+
+    function navigateToCatheterError(errorId) {
+      // Find the field with this error
+      const field = document.querySelector('[data-error-id="' + errorId + '"]');
+      if (!field) return;
+
+      // Focus the field and scroll into view
+      field.focus();
+      field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function clearCatheterFieldError(fieldId) {
+      const field = document.getElementById(fieldId);
+      if (!field) return;
+
+      // Clear error ID and styling when user interacts with the field
+      if (field.value.trim()) {
+        field.removeAttribute('data-error-id');
+        const matField = field.closest('.mat-field');
+        if (matField) {
+          matField.classList.remove('error');
+        }
+      }
+    }
+
+    /* ═══ Care Plan Functions ═══ */
+    function toggleCarePlanDetails(header) {
+      const carePlanItem = header.closest('.care-plan-item');
+      carePlanItem.classList.toggle('expanded');
+    }
+
+    function updateCarePlanStatusBadge(selectElement) {
+      const carePlanItem = selectElement.closest('.care-plan-item');
+      const badge = carePlanItem.querySelector('.care-plan-status-badge');
+      const statusField = selectElement.closest('.mat-field');
+      const selectedValue = selectElement.value;
+
+      // Clear error state when user selects a value
+      if (selectedValue) {
+        carePlanItem.classList.remove('has-error');
+        carePlanItem.removeAttribute('data-error-id');
+        statusField.classList.remove('error');
+      }
+
+      // Update badge text and class based on selected status
+      const statusMap = {
+        'active': { text: 'Active', class: 'badge-active' },
+        'completed': { text: 'Completed', class: 'badge-completed' },
+        'discontinued': { text: 'Discontinued', class: 'badge-inactive' }
+      };
+
+      if (selectedValue && statusMap[selectedValue]) {
+        badge.textContent = statusMap[selectedValue].text;
+        badge.className = 'badge ' + statusMap[selectedValue].class + ' care-plan-status-badge';
+        badge.setAttribute('data-status', selectedValue);
+      } else {
+        badge.textContent = 'Not Selected';
+        badge.className = 'badge badge-not-started care-plan-status-badge';
+        badge.setAttribute('data-status', '');
+      }
+    }
+
+    function saveCarePlanProgress() {
+      // Clear any error states
+      document.querySelectorAll('.care-plan-item.has-error').forEach(item => {
+        item.classList.remove('has-error');
+        item.removeAttribute('data-error-id');
+      });
+      document.querySelectorAll('.mat-field.error').forEach(field => {
+        field.classList.remove('error');
+      });
+
+      // Save current state and mark task as "In Progress"
+      updateCarePlanTask('In Progress', 'badge-in-progress');
+      closeTaskModal();
+    }
+
+    function completeCarePlanTask() {
+      // Clear any previous error states
+      document.querySelectorAll('.care-plan-item.has-error').forEach(item => {
+        item.classList.remove('has-error');
+        item.removeAttribute('data-error-id');
+      });
+      document.querySelectorAll('.mat-field.error').forEach(field => {
+        field.classList.remove('error');
+      });
+
+      // Validate all care plan dropdowns are filled
+      const carePlanSelects = document.querySelectorAll('.care-plan-status');
+      const validationDiv = document.getElementById('care-plan-validation');
+      const emptyPlans = [];
+
+      carePlanSelects.forEach((select, index) => {
+        if (!select.value) {
+          const carePlanItem = select.closest('.care-plan-item');
+          const carePlanName = carePlanItem.querySelector('.care-plan-name').textContent.replace('*', '').trim();
+          const statusField = select.closest('.mat-field');
+
+          // Add error styling and unique identifier
+          carePlanItem.classList.add('has-error');
+          carePlanItem.setAttribute('data-error-id', 'error-' + index);
+          statusField.classList.add('error');
+
+          emptyPlans.push({
+            name: carePlanName,
+            id: 'error-' + index
+          });
+        }
+      });
+
+      if (emptyPlans.length > 0) {
+        const errorLinks = emptyPlans.map(plan =>
+          '<li><a href="#" onclick="navigateToCarePlanError(\'' + plan.id + '\'); return false;">' +
+          plan.name + ' is missing a status</a></li>'
+        ).join('');
+
+        validationDiv.innerHTML = `
+          <span class="material-icons error-icon">warning</span>
+          <div class="error-content">
+            <p class="error-title">There is a problem. Review your information and try again.</p>
+            <ul>${errorLinks}</ul>
+          </div>
+        `;
+        validationDiv.style.display = 'flex';
+        validationDiv.classList.add('show');
+        return;
+      }
+
+      // Validation passed - mark as completed
+      updateCarePlanTask('Completed', 'badge-completed');
+      closeTaskModal();
+    }
+
+    function navigateToCarePlanError(errorId) {
+      // Find the care plan item with this error
+      const carePlanItem = document.querySelector('[data-error-id="' + errorId + '"]');
+      if (!carePlanItem) return;
+
+      // Expand the care plan if it's collapsed
+      if (!carePlanItem.classList.contains('expanded')) {
+        carePlanItem.classList.add('expanded');
+      }
+
+      // Find and focus the status select field
+      const statusSelect = carePlanItem.querySelector('.care-plan-status');
+      if (statusSelect) {
+        // Small delay to allow expansion animation
+        setTimeout(() => {
+          statusSelect.focus();
+          statusSelect.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+      }
+    }
+
+    function updateCarePlanTask(statusText, badgeClass) {
+      const docTasks = document.querySelectorAll('.doc-task');
+      docTasks.forEach(task => {
+        const taskName = task.querySelector('.doc-task-name').textContent.trim();
+        if (taskName.includes('Update Care Plans')) {
+          const badge = task.querySelector('.badge');
+          const meta = task.querySelector('.doc-task-meta');
+
+          badge.textContent = statusText;
+          badge.className = 'badge ' + badgeClass;
+          meta.textContent = 'Last updated by Current User on ' + new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
+        }
+      });
+    }
+
+    /* ═══ Discharge Summary Functions ═══ */
+    function saveDischargeSummaryProgress() {
+      // Clear validation banner and error IDs
+      const validationDiv = document.getElementById('discharge-summary-validation');
+      if (validationDiv) {
+        validationDiv.style.display = 'none';
+        validationDiv.classList.remove('show');
+      }
+
+      document.querySelectorAll('[data-error-id^="ds-error-"]').forEach(element => {
+        element.removeAttribute('data-error-id');
+        const matField = element.closest('.mat-field');
+        if (matField) {
+          matField.classList.remove('error');
+        }
+      });
+
+      updateDischargeSummaryTask('In Progress', 'badge-in-progress');
+      closeTaskModal();
+    }
+
+    function completeDischargeSummaryTask() {
+      // Clear previous validation and error states
+      const validationDiv = document.getElementById('discharge-summary-validation');
+      validationDiv.style.display = 'none';
+      validationDiv.classList.remove('show');
+
+      // Clear previous error IDs and styling
+      document.querySelectorAll('[data-error-id^="ds-error-"]').forEach(element => {
+        element.removeAttribute('data-error-id');
+        const matField = element.closest('.mat-field');
+        if (matField) {
+          matField.classList.remove('error');
+        }
+      });
+
+      // Validate required fields
+      const requiredFields = [
+        { id: 'last-visit-date', label: 'Last Visit' },
+        { id: 'discharge-summary-date', label: 'Discharge Date' },
+        { id: 'discharge-reason', label: 'Reason for Discharge' },
+        { id: 'discharge-status', label: 'Status at Discharge' },
+        { id: 'discharge-acuity', label: 'Acuity at Discharge' }
+      ];
+
+      const errors = [];
+      requiredFields.forEach((field, index) => {
+        const element = document.getElementById(field.id);
+        if (!element.value) {
+          const errorId = 'ds-error-' + index;
+          element.setAttribute('data-error-id', errorId);
+
+          // Add error styling to the mat-field
+          const matField = element.closest('.mat-field');
+          if (matField) {
+            matField.classList.add('error');
+          }
+
+          errors.push({
+            label: field.label + ' is required',
+            id: errorId
+          });
+        }
+      });
+
+      if (errors.length > 0) {
+        const errorLinks = errors.map(error =>
+          '<li><a href="#" onclick="navigateToDischargeSummaryError(\'' + error.id + '\'); return false;">' +
+          error.label + '</a></li>'
+        ).join('');
+
+        validationDiv.innerHTML = `
+          <span class="material-icons error-icon">warning</span>
+          <div class="error-content">
+            <p class="error-title">There is a problem. Review your information and try again.</p>
+            <ul>${errorLinks}</ul>
+          </div>
+        `;
+        validationDiv.style.display = 'flex';
+        validationDiv.classList.add('show');
+
+        // Scroll to top of modal to show error banner
+        const modalBody = document.getElementById('task-modal-body');
+        if (modalBody) {
+          modalBody.scrollTop = 0;
+        }
+
+        return;
+      }
+
+      // Validation passed - mark as completed
+      updateDischargeSummaryTask('Completed', 'badge-completed');
+      closeTaskModal();
+    }
+
+    function navigateToDischargeSummaryError(errorId) {
+      // Find the field with this error
+      const field = document.querySelector('[data-error-id="' + errorId + '"]');
+      if (!field) return;
+
+      // Focus the field and scroll into view
+      field.focus();
+      field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function clearDischargeSummaryFieldError(fieldId) {
+      const field = document.getElementById(fieldId);
+      if (!field) return;
+
+      // Clear error ID and styling when user interacts with the field
+      if (field.value) {
+        field.removeAttribute('data-error-id');
+        const matField = field.closest('.mat-field');
+        if (matField) {
+          matField.classList.remove('error');
+        }
+      }
+    }
+
+    function updateDischargeSummaryTask(statusText, badgeClass) {
+      const docTasks = document.querySelectorAll('.doc-task');
+      docTasks.forEach(task => {
+        const taskName = task.querySelector('.doc-task-name').textContent.trim();
+        if (taskName.includes('Complete Discharge Summary')) {
+          const badge = task.querySelector('.badge');
+          const meta = task.querySelector('.doc-task-meta');
+
+          badge.textContent = statusText;
+          badge.className = 'badge ' + badgeClass;
+          meta.textContent = 'Last updated by Current User on ' + new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
+        }
+      });
+    }
+
+    /* ═══ Diagnosis Modal Functions ═══ */
+    function toggleDiagnosisDetails(header) {
+      const diagnosisItem = header.closest('.diagnosis-item');
+      diagnosisItem.classList.toggle('expanded');
+    }
+
+    function updateDiagnosisBadge(selectElement) {
+      const diagnosisItem = selectElement.closest('.diagnosis-item');
+      const badge = diagnosisItem.querySelector('.diagnosis-status-badge');
+      const selectedValue = selectElement.value;
+
+      const statusMap = {
+        'inactive': { text: 'Inactive', class: 'badge-inactive' },
+        'remission': { text: 'Remission', class: 'badge-pending' },
+        'resolved': { text: 'Resolved', class: 'badge-completed' }
+      };
+
+      if (selectedValue && statusMap[selectedValue]) {
+        badge.textContent = statusMap[selectedValue].text;
+        badge.className = 'badge diagnosis-status-badge ' + statusMap[selectedValue].class;
+        badge.dataset.status = selectedValue;
+      }
+    }
+
+    function clearDiagnosisFieldError(fieldElement) {
+      const matField = fieldElement.closest('.mat-field');
+      if (matField && matField.classList.contains('error')) {
+        matField.classList.remove('error');
+      }
+    }
+
+    function saveDiagnosisProgress() {
+      // Clear previous error states
+      document.querySelectorAll('.diagnosis-item.has-error').forEach(item => {
+        item.classList.remove('has-error');
+        item.removeAttribute('data-error-id');
+      });
+      document.querySelectorAll('.mat-field.error').forEach(field => {
+        field.classList.remove('error');
+      });
+
+      updateDiagnosisTask('In Progress', 'badge-in-progress');
+      closeTaskModal();
+    }
+
+    function completeDiagnosisTask() {
+      // Clear any previous error states
+      document.querySelectorAll('.diagnosis-item.has-error').forEach(item => {
+        item.classList.remove('has-error');
+        item.removeAttribute('data-error-id');
+      });
+      document.querySelectorAll('.mat-field.error').forEach(field => {
+        field.classList.remove('error');
+      });
+
+      // Validate all diagnosis dropdowns and end dates are filled
+      const diagnosisItems = document.querySelectorAll('.diagnosis-item');
+      const errors = [];
+      let errorIndex = 0;
+
+      diagnosisItems.forEach((diagnosisItem, index) => {
+        const diagnosisName = diagnosisItem.querySelector('.diagnosis-name').textContent.trim().replace(' *', '');
+        const statusSelect = diagnosisItem.querySelector('.diagnosis-status');
+        const endDateField = diagnosisItem.querySelector('.diagnosis-end-date');
+
+        // Check if status is selected
+        if (!statusSelect.value || statusSelect.value.trim() === '') {
+          const errorId = 'diagnosis-error-' + errorIndex++;
+          diagnosisItem.classList.add('has-error');
+          diagnosisItem.setAttribute('data-error-id', errorId);
+          statusSelect.closest('.mat-field').classList.add('error');
+          errors.push({
+            name: diagnosisName + ' is missing a status',
+            id: errorId
+          });
+        }
+
+        // Check if end date is filled
+        if (!endDateField.value || endDateField.value.trim() === '') {
+          const errorId = 'diagnosis-error-' + errorIndex++;
+          diagnosisItem.classList.add('has-error');
+          diagnosisItem.setAttribute('data-error-id', errorId);
+          endDateField.closest('.mat-field').classList.add('error');
+          errors.push({
+            name: diagnosisName + ' is missing an end date',
+            id: errorId
+          });
+        }
+      });
+
+      if (errors.length > 0) {
+        const validationDiv = document.getElementById('diagnoses-validation');
+        const errorLinks = errors.map(error =>
+          '<li><a href="#" onclick="navigateToDiagnosisError(\'' + error.id + '\'); return false;">' +
+          error.name + '</a></li>'
+        ).join('');
+
+        validationDiv.innerHTML = `
+          <span class="material-icons error-icon">warning</span>
+          <div class="error-content">
+            <p class="error-title">There is a problem. Review your information and try again.</p>
+            <ul>${errorLinks}</ul>
+          </div>
+        `;
+        validationDiv.style.display = 'flex';
+        validationDiv.classList.add('show');
+
+        // Scroll to top of modal to show error banner
+        document.getElementById('task-modal-body').scrollTop = 0;
+        return;
+      }
+
+      // Validation passed - mark as completed
+      updateDiagnosisTask('Completed', 'badge-completed');
+      closeTaskModal();
+    }
+
+    function navigateToDiagnosisError(errorId) {
+      // Find the diagnosis item with this error
+      const diagnosisItem = document.querySelector('[data-error-id="' + errorId + '"]');
+      if (!diagnosisItem) return;
+
+      // Expand the diagnosis if it's collapsed
+      if (!diagnosisItem.classList.contains('expanded')) {
+        diagnosisItem.classList.add('expanded');
+      }
+
+      // Find the field with error in this diagnosis item
+      const errorField = diagnosisItem.querySelector('.mat-field.error .form-select, .mat-field.error .form-input');
+      if (errorField) {
+        setTimeout(() => {
+          errorField.focus();
+          errorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+      }
+    }
+
+    function updateDiagnosisTask(statusText, badgeClass) {
+      const docTasks = document.querySelectorAll('.doc-task');
+      docTasks.forEach(task => {
+        const taskName = task.querySelector('.doc-task-name').textContent.trim();
+        if (taskName.includes('Inactivate Relevant Diagnoses')) {
+          const badge = task.querySelector('.badge');
+          const meta = task.querySelector('.doc-task-meta');
+
+          badge.textContent = statusText;
+          badge.className = 'badge ' + badgeClass;
+          meta.textContent = 'Last updated by Current User on ' + new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
+        }
+      });
+    }
+
+    /* ═══ Outstanding Tasks Modal Functions ═══ */
+    // Store checked task state
+    const checkedTasks = new Set();
+
+    function saveOutstandingTasksProgress() {
+      // Store the current checked state
+      const checkboxes = document.querySelectorAll('.task-checkbox');
+      checkedTasks.clear();
+      checkboxes.forEach((checkbox, index) => {
+        if (checkbox.checked) {
+          checkedTasks.add(index);
+        }
+      });
+
+      // Mark as In Progress
+      updateOutstandingTasksStatus('In Progress', 'badge-in-progress');
+      closeTaskModal();
+    }
+
+    function completeOutstandingTasks() {
+      // Clear previous validation
+      const validationDiv = document.getElementById('tasks-validation');
+      validationDiv.style.display = 'none';
+      validationDiv.classList.remove('show');
+
+      // Get all checkboxes
+      const allCheckboxes = document.querySelectorAll('.task-checkbox');
+      const checkedCheckboxes = document.querySelectorAll('.task-checkbox:checked');
+
+      // Validate that ALL checkboxes are checked
+      if (checkedCheckboxes.length !== allCheckboxes.length) {
+        validationDiv.innerHTML = `
+          <span class="material-icons error-icon">warning</span>
+          <div class="error-content">
+            <p class="error-title">There is a problem. Review your information and try again.</p>
+            <ul><li>All tasks must be marked as completed before discharge. Use Save to mark as In Progress.</li></ul>
+          </div>
+        `;
+        validationDiv.style.display = 'flex';
+        validationDiv.classList.add('show');
+
+        // Scroll to top of modal to show error banner
+        document.getElementById('task-modal-body').scrollTop = 0;
+        return;
+      }
+
+      // Store the current checked state
+      checkedTasks.clear();
+      allCheckboxes.forEach((checkbox, index) => {
+        if (checkbox.checked) {
+          checkedTasks.add(index);
+        }
+      });
+
+      // Validation passed - mark Outstanding Tasks as completed
+      updateOutstandingTasksStatus('Completed', 'badge-completed');
+      closeTaskModal();
+    }
+
+    function updateOutstandingTasksStatus(statusText, badgeClass) {
+      const docTasks = document.querySelectorAll('.doc-task');
+      docTasks.forEach(task => {
+        const taskName = task.querySelector('.doc-task-name').textContent.trim();
+        if (taskName.includes('Complete Outstanding Tasks')) {
+          const badge = task.querySelector('.badge');
+          const meta = task.querySelector('.doc-task-meta');
+
+          badge.textContent = statusText;
+          badge.className = 'badge ' + badgeClass;
+          meta.textContent = 'Last updated by Current User on ' + new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
+        }
+      });
+    }
+
+    function saveTaskForm() {
+      // In production: save form data to backend
+      // For prototype: just mark the task as completed
+      const taskTitle = document.getElementById('task-modal-title').textContent;
+
+      // Find the corresponding task in the documentation list
+      const docTasks = document.querySelectorAll('.doc-task');
+      docTasks.forEach(task => {
+        const taskName = task.querySelector('.doc-task-name').textContent.trim();
+        if (taskName.includes(taskTitle)) {
+          const badge = task.querySelector('.badge');
+          const statusUser = task.querySelector('.doc-task-status-user');
+
+          badge.textContent = 'Completed';
+          badge.className = 'badge badge-completed';
+          statusUser.textContent = 'by Current User on ' + new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
+          statusUser.style.display = 'block';
+        }
+      });
+
+      closeTaskModal();
+    }
+
+    /* ═══ Sidebar Collapse ═══ */
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const icon = document.getElementById('collapse-icon');
+      const label = document.getElementById('collapse-label');
+      const footer = document.getElementById('form-footer');
+      sidebar.classList.toggle('collapsed');
+      if (sidebar.classList.contains('collapsed')) {
+        icon.textContent = 'keyboard_double_arrow_right';
+        label.style.display = 'none';
+        document.querySelectorAll('.sidebar-item-label').forEach(l => l.style.display = 'none');
+        footer.style.left = 'var(--wcts-sidebar-collapsed-width)';
+      } else {
+        icon.textContent = 'keyboard_double_arrow_left';
+        label.style.display = '';
+        document.querySelectorAll('.sidebar-item-label').forEach(l => l.style.display = '');
+        footer.style.left = 'var(--wcts-sidebar-width)';
+      }
+    }
+
+    /* ═══ Mobile drawer toggle ═══ */
+    function toggleDrawer() {
+      document.body.classList.toggle('sidebar-open');
+    }
+
+    function closeDrawer() {
+      document.body.classList.remove('sidebar-open');
+    }
+
+    window.addEventListener('resize', function () {
+      if (window.innerWidth >= 640) {
+        document.body.classList.remove('sidebar-open');
+      }
+    });
+
+    // Set max date to today for all discharge date inputs on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const day = String(today.getDate()).padStart(2, '0');
+      const todayString = `${year}-${month}-${day}`;
+
+      document.getElementById('eoc1-discharge-date').max = todayString;
+      document.getElementById('eoc2-discharge-date').max = todayString;
+      document.getElementById('eoc3-discharge-date').max = todayString;
+    });
+  </script>
+
+  <!-- ═══ Documentation Task Modal ═══ -->
+  <div class="modal-overlay" id="task-modal" style="display: none;">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h2 class="modal-title" id="task-modal-title">Update Care Plans</h2>
+        <button class="modal-close-btn" onclick="closeTaskModal()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+      <div class="modal-body" id="task-modal-body">
+        <!-- Content dynamically populated based on task type -->
+      </div>
+      <div class="modal-footer" id="task-modal-footer">
+        <!-- Footer buttons dynamically populated based on task type -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Catheter Removal Modal ═══ -->
+  <div class="modal-overlay" id="catheter-modal" style="display: none;">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h2 class="modal-title">Catheter Removal</h2>
+        <button class="modal-close-btn" onclick="closeCatheterModal()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p style="color: var(--wsc-system-on-surface-variant); margin-bottom: 20px;">
+          Confirm catheter was removed before discharge or document reason for non-removal.
+        </p>
+
+        <div class="validation-error" id="catheter-validation" style="display: none; margin-bottom: 16px;"></div>
+
+        <div class="mat-field" style="margin-bottom: 16px;">
+          <label class="form-label">Status <span class="required">*</span></label>
+          <select class="form-select" id="catheter-status-select" onchange="onCatheterStatusChange()">
+            <option value="">Select status...</option>
+            <option value="removed" selected>Removed</option>
+            <option value="not-removed">Not Removed</option>
+          </select>
+        </div>
+
+        <div class="mat-field" id="catheter-reason-field" style="display: none;">
+          <label class="form-label">Reason for Non-Removal <span class="required">*</span></label>
+          <textarea class="form-textarea" id="catheter-reason-input" rows="4" placeholder=" " oninput="clearCatheterFieldError('catheter-reason-input')"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-text-link" onclick="closeCatheterModal()">Cancel</button>
+        <button class="btn-outlined" onclick="saveCatheterProgress()">Save</button>
+        <button class="btn-primary" onclick="completeCatheterTask()">Mark as Completed</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ EOC Details Slide-Over Panel ═══ -->
+  <div class="slide-over-overlay" id="slide-over-overlay" onclick="closeSlideOver()"></div>
+  <div class="slide-over-panel" id="slide-over-panel">
+    <div class="slide-over-header">
+      <div class="slide-over-title" id="slide-over-title-text">Episode of Care Details</div>
+      <button class="slide-over-close-btn" onclick="closeSlideOver()">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+    <div class="slide-over-body">
+      <div class="detail-grid">
+        <div class="detail-item" style="grid-column: 1 / -1;">
+          <div class="detail-label">Case Number</div>
+          <div class="detail-value" id="eoc-detail-case">HH-2026-0034</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Start Date</div>
+          <div class="detail-value">01/15/2026</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Status</div>
+          <div class="detail-value">Active</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Primary Diagnosis</div>
+          <div class="detail-value">Heart Failure (I50.9)</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Admitting Physician</div>
+          <div class="detail-value">Dr. Anderson</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Care Coordinator</div>
+          <div class="detail-value">Care Coordinator</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Authorization Number</div>
+          <div class="detail-value">AUTH-2026-8843</div>
+        </div>
+        <div class="detail-item" style="grid-column: 1 / -1;">
+          <div class="detail-label">Active Orders</div>
+          <div class="detail-value">
+            <ul style="margin: 4px 0 0 0; padding-left: 20px; list-style: disc;">
+              <li>Skilled Nursing Visits - 3x per week</li>
+              <li>Physical Therapy - 2x per week</li>
+              <li>Home Health Aide - Daily</li>
+            </ul>
+          </div>
+        </div>
+        <div class="detail-item" style="grid-column: 1 / -1;">
+          <div class="detail-label">Equipment</div>
+          <div class="detail-value">
+            <ul style="margin: 4px 0 0 0; padding-left: 20px; list-style: disc;">
+              <li>Hospital Bed</li>
+              <li>Wheelchair</li>
+              <li>Oxygen Concentrator</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Discontinue Orders Slide-Over Panel ═══ -->
+  <div class="slide-over-overlay" id="orders-slide-over-overlay" onclick="closeOrdersSlideOver()"></div>
+  <div class="slide-over-panel" id="orders-slide-over-panel">
+    <div class="slide-over-header">
+      <div class="slide-over-title">Active Orders to Discontinue</div>
+      <button class="slide-over-close-btn" onclick="closeOrdersSlideOver()">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+    <div class="slide-over-body">
+      <p style="color: var(--wsc-system-on-surface-variant); margin-bottom: 20px; font-size: 13px;">
+        All active orders for selected Episodes of Care will be marked as discontinued upon discharge.
+      </p>
+
+      <div style="margin-bottom: 24px;">
+        <h3 style="font-size: 14px; font-weight: 600; color: var(--wsc-system-on-primary-container); margin-bottom: 12px;">Home Health - Skilled Nursing (HH-2026-0034)</h3>
+        <ul style="margin: 0; padding-left: 20px; list-style: disc;">
+          <li style="margin-bottom: 8px; font-size: 13px; color: var(--wsc-system-on-surface);">Skilled Nursing Visits - 3x per week</li>
+          <li style="margin-bottom: 8px; font-size: 13px; color: var(--wsc-system-on-surface);">Physical Therapy - 2x per week</li>
+          <li style="margin-bottom: 8px; font-size: 13px; color: var(--wsc-system-on-surface);">Home Health Aide - Daily</li>
+          <li style="margin-bottom: 8px; font-size: 13px; color: var(--wsc-system-on-surface);">Medication Management - Weekly</li>
+        </ul>
+      </div>
+
+      <div style="margin-bottom: 24px;">
+        <h3 style="font-size: 14px; font-weight: 600; color: var(--wsc-system-on-primary-container); margin-bottom: 12px;">Physical Therapy Services (PT-2026-0122)</h3>
+        <ul style="margin: 0; padding-left: 20px; list-style: disc;">
+          <li style="margin-bottom: 8px; font-size: 13px; color: var(--wsc-system-on-surface);">Physical Therapy Evaluation</li>
+          <li style="margin-bottom: 8px; font-size: 13px; color: var(--wsc-system-on-surface);">Therapeutic Exercise - 2x per week</li>
+          <li style="margin-bottom: 8px; font-size: 13px; color: var(--wsc-system-on-surface);">Gait Training - 2x per week</li>
+        </ul>
+      </div>
+
+      <div style="margin-bottom: 24px;">
+        <h3 style="font-size: 14px; font-weight: 600; color: var(--wsc-system-on-primary-container); margin-bottom: 12px;">Occupational Therapy Services (OT-2026-0089)</h3>
+        <ul style="margin: 0; padding-left: 20px; list-style: disc;">
+          <li style="margin-bottom: 8px; font-size: 13px; color: var(--wsc-system-on-surface);">Occupational Therapy Evaluation</li>
+          <li style="margin-bottom: 8px; font-size: 13px; color: var(--wsc-system-on-surface);">Activities of Daily Living Training - 2x per week</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Pick Up Equipment Slide-Over Panel ═══ -->
+  <div class="slide-over-overlay" id="equipment-slide-over-overlay" onclick="closeEquipmentSlideOver()"></div>
+  <div class="slide-over-panel" id="equipment-slide-over-panel">
+    <div class="slide-over-header">
+      <div class="slide-over-title">Equipment for Pick Up</div>
+      <button class="slide-over-close-btn" onclick="closeEquipmentSlideOver()">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+    <div class="slide-over-body">
+      <!-- Content populated dynamically by openEquipmentSlideOver() -->
+    </div>
+  </div>
+
+</body>
+</html>
