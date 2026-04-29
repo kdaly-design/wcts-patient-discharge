@@ -160,7 +160,7 @@
 
     .content-area {
       padding: var(--wcts-content-padding);
-      max-width: 1200px;
+      max-width: 900px;
     }
 
     .breadcrumb {
@@ -275,79 +275,195 @@
       padding: var(--wcts-card-body-padding);
     }
 
-    /* ═══ DETAIL GRID ═══ */
-    .detail-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px 24px;
-      padding: 8px 0;
+    /* ═══ SUMMARY SECTION ═══ */
+    .summary-section {
+      margin-bottom: 20px;
     }
 
-    .detail-item {
+    .summary-section-header {
       display: flex;
-      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
     }
 
-    .detail-label {
-      font-size: 12px;
-      color: var(--wsc-system-neutral-variant);
-      margin-bottom: 4px;
-    }
-
-    .detail-value {
+    .summary-section-title {
       font-size: 14px;
+      font-weight: 600;
+      color: var(--wsc-system-on-primary-container);
+    }
+
+    .edit-section-btn {
+      background: none;
+      border: none;
+      color: var(--wsc-system-primary);
+      cursor: pointer;
+      padding: 4px;
+      border-radius: var(--wsc-border-radius-sm);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
       font-weight: 500;
+      transition: background var(--wsc-transition-fast);
+    }
+
+    .edit-section-btn:hover {
+      background: var(--wsc-system-primary-container);
+    }
+
+    .edit-section-btn .material-icons {
+      font-size: 16px;
+    }
+
+    .summary-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .summary-list li {
+      padding: 8px 0;
+      font-size: 13px;
       color: var(--wsc-system-on-surface);
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
-    .detail-value.placeholder {
-      color: var(--wsc-system-placeholder-text);
-      font-weight: 400;
+    .summary-list li::before {
+      content: '•';
+      color: var(--wsc-system-primary);
+      font-weight: bold;
+      font-size: 16px;
     }
 
-    .detail-item.span-2 {
-      grid-column: span 2;
+    .summary-list.editable li {
+      position: relative;
+      padding-right: 60px;
     }
 
-    .detail-item.span-3 {
-      grid-column: span 3;
+    .summary-list li.editing {
+      background: var(--wsc-system-surface-container-low);
+      padding: 8px;
+      border-radius: var(--wsc-border-radius-sm);
+      margin: 4px 0;
     }
 
-    .detail-item.span-4 {
-      grid-column: span 4;
+    .summary-list li.editing::before {
+      display: none;
     }
 
-    /* ═══ SECTION DIVIDER ═══ */
+    .summary-list li .item-text {
+      flex: 1;
+    }
+
+    .summary-list li .item-edit-field {
+      display: none;
+      flex: 1;
+    }
+
+    .summary-list li.editing .item-text {
+      display: none;
+    }
+
+    .summary-list li.editing .item-edit-field {
+      display: block;
+    }
+
+    .summary-list li.editing .mat-field {
+      margin-bottom: 0;
+    }
+
+    .summary-list li.editing .mat-field .form-input {
+      font-size: 13px;
+      padding: 8px 12px 6px;
+      min-height: 34px;
+    }
+
+    .summary-list li.editing .mat-field .form-label {
+      font-size: 11px;
+      top: 2px;
+      left: 12px;
+    }
+
+    .item-actions {
+      display: none;
+      gap: 4px;
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .summary-list.editable .item-actions {
+      display: flex;
+    }
+
+    .item-action-btn {
+      background: none;
+      border: none;
+      color: var(--wsc-system-neutral);
+      cursor: pointer;
+      padding: 2px;
+      border-radius: var(--wsc-border-radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--wsc-transition-fast);
+    }
+
+    .item-action-btn:hover {
+      background: var(--wsc-system-surface-container);
+    }
+
+    .item-action-btn .material-icons {
+      font-size: 16px;
+    }
+
+    .item-action-btn.save {
+      color: var(--wsc-system-success);
+    }
+
+    .item-action-btn.cancel {
+      color: var(--wsc-system-error);
+    }
+
+    .item-action-btn.delete {
+      color: var(--wsc-system-error);
+    }
+
     .section-divider {
       height: 1px;
       background: var(--wsc-system-outline);
       margin: 20px 0;
     }
 
+    .add-item-btn {
+      display: none;
+      background: none;
+      border: 1px dashed var(--wsc-system-outline);
+      color: var(--wsc-system-primary);
+      cursor: pointer;
+      padding: 8px 12px;
+      border-radius: var(--wsc-border-radius-sm);
+      font-size: 12px;
+      font-weight: 500;
+      margin-top: 8px;
+      width: 100%;
+      transition: all var(--wsc-transition-fast);
+    }
+
+    .add-item-btn:hover {
+      background: var(--wsc-system-primary-container);
+      border-color: var(--wsc-system-primary);
+    }
+
+    .summary-section.editing .add-item-btn {
+      display: block;
+    }
+
     /* ═══ MATERIAL FILL FIELD ═══ */
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px 24px;
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .form-group.span-2 {
-      grid-column: span 2;
-    }
-
-    .form-group.span-3 {
-      grid-column: span 3;
-    }
-
-    .form-group.span-4 {
-      grid-column: span 4;
-    }
-
     .mat-field {
       position: relative;
       background: var(--wsc-system-mat-fill-bg);
@@ -363,28 +479,7 @@
       padding-bottom: 7px;
     }
 
-    .mat-field.read-only {
-      background: transparent;
-      border-bottom: none;
-      padding: 0;
-      margin-bottom: 0;
-    }
-
-    .mat-field.read-only .form-label {
-      position: static;
-      transform: none;
-      font-size: 12px;
-      color: var(--wsc-system-neutral-variant);
-      margin-bottom: 4px;
-    }
-
-    .mat-field.read-only .form-input {
-      padding: 0;
-      font-weight: 500;
-      cursor: default;
-    }
-
-    .form-label {
+    .mat-field .form-label {
       position: absolute;
       left: 12px;
       top: 50%;
@@ -400,9 +495,7 @@
     .mat-field:focus-within .form-label,
     .mat-field:has(.form-input:not(:placeholder-shown)) .form-label,
     .mat-field:has(.form-select) .form-label,
-    .mat-field:has(.form-textarea) .form-label,
-    .mat-field:has(input[type="date"]:not([value=""])) .form-label,
-    .mat-field:has(input[type="time"]:not([value=""])) .form-label {
+    .mat-field:has(.form-textarea) .form-label {
       top: 6px;
       transform: none;
       font-size: 12px;
@@ -456,6 +549,25 @@
       min-height: 80px;
     }
 
+    .form-field-icon {
+      position: relative;
+    }
+
+    .form-field-icon .field-icon {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--wsc-system-neutral);
+      font-size: 20px;
+      pointer-events: none;
+    }
+
+    .form-field-icon .form-input {
+      padding-right: 28px;
+    }
+
+    /* Checkbox */
     .checkbox-item {
       display: flex;
       align-items: center;
@@ -583,43 +695,6 @@
       transition: opacity var(--wsc-transition-normal);
     }
 
-    /* ═══ Print Styles ═══ */
-    @media print {
-      .topnav,
-      .sidebar,
-      .form-footer,
-      .prototype-banner,
-      .btn-text-link,
-      .btn-primary {
-        display: none !important;
-      }
-
-      body {
-        background: white;
-        height: auto;
-        overflow: visible;
-      }
-
-      .app-body {
-        height: auto;
-        margin-top: 0;
-      }
-
-      .main-content {
-        overflow: visible;
-        padding-bottom: 0;
-      }
-
-      .card {
-        page-break-inside: avoid;
-        box-shadow: none;
-      }
-
-      .entity-banner {
-        page-break-after: avoid;
-      }
-    }
-
     /* ═══ Responsive ═══ */
     @media (max-width: 1023px) {
       .sidebar { width: var(--wcts-sidebar-collapsed-width); }
@@ -652,12 +727,6 @@
         align-self: center;
         min-height: 44px;
         padding: 8px 16px;
-      }
-
-      .detail-grid,
-      .form-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px 16px;
       }
     }
 
@@ -718,12 +787,6 @@
         font-size: 9px;
         padding: 2px var(--wsc-system-spacer-rem-2xs);
         white-space: nowrap;
-      }
-
-      .detail-grid,
-      .form-grid {
-        grid-template-columns: 1fr;
-        gap: 12px;
       }
     }
 
@@ -847,47 +910,6 @@
         <!-- Page Title -->
         <h1 class="page-title">Discharge Progress Note</h1>
 
-        <!-- Progress Note Details Card -->
-        <div class="card">
-          <div class="card-header">
-            <h2 class="card-title">Progress Note Details</h2>
-          </div>
-          <div class="card-body">
-            <div class="form-grid">
-              <div class="form-group">
-                <div class="mat-field read-only">
-                  <label class="form-label">Entered By</label>
-                  <input type="text" class="form-input" value="Amanda Smith, RN" readonly>
-                </div>
-              </div>
-              <div class="form-group">
-                <div class="mat-field">
-                  <label class="form-label">Date Entered *</label>
-                  <input type="date" class="form-input" id="date-entered" required placeholder=" ">
-                </div>
-              </div>
-              <div class="form-group">
-                <div class="mat-field">
-                  <label class="form-label">Time Entered *</label>
-                  <input type="time" class="form-input" id="time-entered" required placeholder=" ">
-                </div>
-              </div>
-              <div class="form-group">
-                <div class="mat-field">
-                  <label class="form-label">Subject *</label>
-                  <select class="form-select" id="subject" required>
-                    <option value="Patient Discharged" selected>Patient Discharged</option>
-                    <option value="Care Plan Review">Care Plan Review</option>
-                    <option value="Medication Changes">Medication Changes</option>
-                    <option value="Follow-up Required">Follow-up Required</option>
-                    <option value="Transfer of Care">Transfer of Care</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
         <!-- Discharge Summary Card -->
         <div class="card">
           <div class="card-header">
@@ -895,59 +917,259 @@
           </div>
           <div class="card-body">
 
-            <!-- Episodes of Care Discharged -->
-            <div class="detail-grid">
-              <div class="detail-item span-4">
-                <div class="detail-label">Episodes of Care Discharged</div>
-                <div class="detail-value">
-                  Home Health - Skilled Nursing (Case #: HH-2026-0034)<br>
-                  Physical Therapy Services (Case #: PT-2026-0122)
-                </div>
+            <!-- Selected Episodes of Care -->
+            <div class="summary-section" id="section-eoc">
+              <div class="summary-section-header">
+                <div class="summary-section-title">Episodes of Care Being Discharged</div>
+                <button class="edit-section-btn" onclick="toggleEditMode('section-eoc')">
+                  <span class="material-icons">edit</span>
+                  <span class="edit-btn-text">Edit</span>
+                </button>
               </div>
+              <ul class="summary-list" id="list-eoc">
+                <li>
+                  <span class="item-text">Home Health - Skilled Nursing (Case #: HH-2026-0034)</span>
+                  <div class="item-edit-field">
+                    <div class="mat-field">
+                      <label class="form-label">Edit Item</label>
+                      <input type="text" class="form-input" value="Home Health - Skilled Nursing (Case #: HH-2026-0034)" placeholder=" ">
+                    </div>
+                  </div>
+                  <div class="item-actions">
+                    <button class="item-action-btn save" onclick="saveItem(this)" title="Save">
+                      <span class="material-icons">check</span>
+                    </button>
+                    <button class="item-action-btn cancel" onclick="cancelEdit(this)" title="Cancel">
+                      <span class="material-icons">close</span>
+                    </button>
+                    <button class="item-action-btn delete" onclick="deleteItem(this)" title="Delete">
+                      <span class="material-icons">delete</span>
+                    </button>
+                  </div>
+                </li>
+                <li>
+                  <span class="item-text">Physical Therapy Services (Case #: PT-2026-0122)</span>
+                  <div class="item-edit-field">
+                    <div class="mat-field">
+                      <label class="form-label">Edit Item</label>
+                      <input type="text" class="form-input" value="Physical Therapy Services (Case #: PT-2026-0122)" placeholder=" ">
+                    </div>
+                  </div>
+                  <div class="item-actions">
+                    <button class="item-action-btn save" onclick="saveItem(this)" title="Save">
+                      <span class="material-icons">check</span>
+                    </button>
+                    <button class="item-action-btn cancel" onclick="cancelEdit(this)" title="Cancel">
+                      <span class="material-icons">close</span>
+                    </button>
+                    <button class="item-action-btn delete" onclick="deleteItem(this)" title="Delete">
+                      <span class="material-icons">delete</span>
+                    </button>
+                  </div>
+                </li>
+              </ul>
+              <button class="add-item-btn" onclick="addNewItem('list-eoc')">
+                <span class="material-icons" style="font-size: 16px; margin-right: 4px;">add</span>
+                Add Episode of Care
+              </button>
             </div>
 
             <div class="section-divider"></div>
 
             <!-- Completed Documentation -->
-            <div class="detail-grid">
-              <div class="detail-item span-2">
-                <div class="detail-label">Care Plans</div>
-                <div class="detail-value">Updated by A. Smith on 04/10/2026 at 2:34 PM</div>
+            <div class="summary-section" id="section-docs">
+              <div class="summary-section-header">
+                <div class="summary-section-title">Completed Documentation</div>
+                <button class="edit-section-btn" onclick="toggleEditMode('section-docs')">
+                  <span class="material-icons">edit</span>
+                  <span class="edit-btn-text">Edit</span>
+                </button>
               </div>
-              <div class="detail-item span-2">
-                <div class="detail-label">Outstanding Tasks</div>
-                <div class="detail-value">Completed</div>
-              </div>
-              <div class="detail-item span-2">
-                <div class="detail-label">Relevant Diagnoses</div>
-                <div class="detail-value">Inactivated by Dr. Johnson on 04/12/2026 at 9:15 AM</div>
-              </div>
-              <div class="detail-item span-2">
-                <div class="detail-label">Discharge Summary</div>
-                <div class="detail-value">Completed</div>
-              </div>
+              <ul class="summary-list" id="list-docs">
+                <li>
+                  <span class="item-text">Care Plans updated by A. Smith on 04/10/2026 at 2:34 PM</span>
+                  <div class="item-edit-field">
+                    <div class="mat-field">
+                      <label class="form-label">Edit Item</label>
+                      <input type="text" class="form-input" value="Care Plans updated by A. Smith on 04/10/2026 at 2:34 PM" placeholder=" ">
+                    </div>
+                  </div>
+                  <div class="item-actions">
+                    <button class="item-action-btn save" onclick="saveItem(this)" title="Save">
+                      <span class="material-icons">check</span>
+                    </button>
+                    <button class="item-action-btn cancel" onclick="cancelEdit(this)" title="Cancel">
+                      <span class="material-icons">close</span>
+                    </button>
+                    <button class="item-action-btn delete" onclick="deleteItem(this)" title="Delete">
+                      <span class="material-icons">delete</span>
+                    </button>
+                  </div>
+                </li>
+                <li>
+                  <span class="item-text">Outstanding Tasks completed</span>
+                  <div class="item-edit-field">
+                    <div class="mat-field">
+                      <label class="form-label">Edit Item</label>
+                      <input type="text" class="form-input" value="Outstanding Tasks completed" placeholder=" ">
+                    </div>
+                  </div>
+                  <div class="item-actions">
+                    <button class="item-action-btn save" onclick="saveItem(this)" title="Save">
+                      <span class="material-icons">check</span>
+                    </button>
+                    <button class="item-action-btn cancel" onclick="cancelEdit(this)" title="Cancel">
+                      <span class="material-icons">close</span>
+                    </button>
+                    <button class="item-action-btn delete" onclick="deleteItem(this)" title="Delete">
+                      <span class="material-icons">delete</span>
+                    </button>
+                  </div>
+                </li>
+                <li>
+                  <span class="item-text">Relevant Diagnoses inactivated by Dr. Johnson on 04/12/2026 at 9:15 AM</span>
+                  <div class="item-edit-field">
+                    <div class="mat-field">
+                      <label class="form-label">Edit Item</label>
+                      <input type="text" class="form-input" value="Relevant Diagnoses inactivated by Dr. Johnson on 04/12/2026 at 9:15 AM" placeholder=" ">
+                    </div>
+                  </div>
+                  <div class="item-actions">
+                    <button class="item-action-btn save" onclick="saveItem(this)" title="Save">
+                      <span class="material-icons">check</span>
+                    </button>
+                    <button class="item-action-btn cancel" onclick="cancelEdit(this)" title="Cancel">
+                      <span class="material-icons">close</span>
+                    </button>
+                    <button class="item-action-btn delete" onclick="deleteItem(this)" title="Delete">
+                      <span class="material-icons">delete</span>
+                    </button>
+                  </div>
+                </li>
+                <li>
+                  <span class="item-text">Discharge Summary completed</span>
+                  <div class="item-edit-field">
+                    <div class="mat-field">
+                      <label class="form-label">Edit Item</label>
+                      <input type="text" class="form-input" value="Discharge Summary completed" placeholder=" ">
+                    </div>
+                  </div>
+                  <div class="item-actions">
+                    <button class="item-action-btn save" onclick="saveItem(this)" title="Save">
+                      <span class="material-icons">check</span>
+                    </button>
+                    <button class="item-action-btn cancel" onclick="cancelEdit(this)" title="Cancel">
+                      <span class="material-icons">close</span>
+                    </button>
+                    <button class="item-action-btn delete" onclick="deleteItem(this)" title="Delete">
+                      <span class="material-icons">delete</span>
+                    </button>
+                  </div>
+                </li>
+              </ul>
+              <button class="add-item-btn" onclick="addNewItem('list-docs')">
+                <span class="material-icons" style="font-size: 16px; margin-right: 4px;">add</span>
+                Add Documentation Item
+              </button>
             </div>
 
             <div class="section-divider"></div>
 
-            <!-- Discharge Actions Triggered -->
-            <div class="detail-grid">
-              <div class="detail-item span-2">
-                <div class="detail-label">Active Orders</div>
-                <div class="detail-value">All active orders discontinued for selected Episodes of Care</div>
+            <!-- Triggered Actions -->
+            <div class="summary-section" id="section-actions">
+              <div class="summary-section-header">
+                <div class="summary-section-title">Discharge Actions Triggered</div>
+                <button class="edit-section-btn" onclick="toggleEditMode('section-actions')">
+                  <span class="material-icons">edit</span>
+                  <span class="edit-btn-text">Edit</span>
+                </button>
               </div>
-              <div class="detail-item span-2">
-                <div class="detail-label">Catheter Removal</div>
-                <div class="detail-value">Confirmed</div>
-              </div>
-              <div class="detail-item span-2">
-                <div class="detail-label">Equipment Pick-up</div>
-                <div class="detail-value">Ticket created for scheduling</div>
-              </div>
-              <div class="detail-item span-2">
-                <div class="detail-label">Active Outcomes</div>
-                <div class="detail-value">Marked with stop date of 04/28/2026</div>
-              </div>
+              <ul class="summary-list" id="list-actions">
+                <li>
+                  <span class="item-text">All active orders discontinued for selected Episodes of Care</span>
+                  <div class="item-edit-field">
+                    <div class="mat-field">
+                      <label class="form-label">Edit Item</label>
+                      <input type="text" class="form-input" value="All active orders discontinued for selected Episodes of Care" placeholder=" ">
+                    </div>
+                  </div>
+                  <div class="item-actions">
+                    <button class="item-action-btn save" onclick="saveItem(this)" title="Save">
+                      <span class="material-icons">check</span>
+                    </button>
+                    <button class="item-action-btn cancel" onclick="cancelEdit(this)" title="Cancel">
+                      <span class="material-icons">close</span>
+                    </button>
+                    <button class="item-action-btn delete" onclick="deleteItem(this)" title="Delete">
+                      <span class="material-icons">delete</span>
+                    </button>
+                  </div>
+                </li>
+                <li>
+                  <span class="item-text">Catheter removal confirmed</span>
+                  <div class="item-edit-field">
+                    <div class="mat-field">
+                      <label class="form-label">Edit Item</label>
+                      <input type="text" class="form-input" value="Catheter removal confirmed" placeholder=" ">
+                    </div>
+                  </div>
+                  <div class="item-actions">
+                    <button class="item-action-btn save" onclick="saveItem(this)" title="Save">
+                      <span class="material-icons">check</span>
+                    </button>
+                    <button class="item-action-btn cancel" onclick="cancelEdit(this)" title="Cancel">
+                      <span class="material-icons">close</span>
+                    </button>
+                    <button class="item-action-btn delete" onclick="deleteItem(this)" title="Delete">
+                      <span class="material-icons">delete</span>
+                    </button>
+                  </div>
+                </li>
+                <li>
+                  <span class="item-text">Equipment pick-up ticket created for scheduling</span>
+                  <div class="item-edit-field">
+                    <div class="mat-field">
+                      <label class="form-label">Edit Item</label>
+                      <input type="text" class="form-input" value="Equipment pick-up ticket created for scheduling" placeholder=" ">
+                    </div>
+                  </div>
+                  <div class="item-actions">
+                    <button class="item-action-btn save" onclick="saveItem(this)" title="Save">
+                      <span class="material-icons">check</span>
+                    </button>
+                    <button class="item-action-btn cancel" onclick="cancelEdit(this)" title="Cancel">
+                      <span class="material-icons">close</span>
+                    </button>
+                    <button class="item-action-btn delete" onclick="deleteItem(this)" title="Delete">
+                      <span class="material-icons">delete</span>
+                    </button>
+                  </div>
+                </li>
+                <li>
+                  <span class="item-text">All active outcomes marked with stop date of 04/28/2026</span>
+                  <div class="item-edit-field">
+                    <div class="mat-field">
+                      <label class="form-label">Edit Item</label>
+                      <input type="text" class="form-input" value="All active outcomes marked with stop date of 04/28/2026" placeholder=" ">
+                    </div>
+                  </div>
+                  <div class="item-actions">
+                    <button class="item-action-btn save" onclick="saveItem(this)" title="Save">
+                      <span class="material-icons">check</span>
+                    </button>
+                    <button class="item-action-btn cancel" onclick="cancelEdit(this)" title="Cancel">
+                      <span class="material-icons">close</span>
+                    </button>
+                    <button class="item-action-btn delete" onclick="deleteItem(this)" title="Delete">
+                      <span class="material-icons">delete</span>
+                    </button>
+                  </div>
+                </li>
+              </ul>
+              <button class="add-item-btn" onclick="addNewItem('list-actions')">
+                <span class="material-icons" style="font-size: 16px; margin-right: 4px;">add</span>
+                Add Action Item
+              </button>
             </div>
 
           </div>
@@ -960,50 +1182,43 @@
           </div>
           <div class="card-body">
 
-            <div class="form-grid">
-              <!-- Additional Notes -->
-              <div class="form-group span-4">
-                <div class="mat-field">
-                  <label class="form-label">Additional Notes</label>
-                  <textarea class="form-textarea" placeholder=" "></textarea>
-                </div>
-              </div>
+            <!-- Additional Notes -->
+            <div class="mat-field">
+              <label class="form-label">Additional Notes</label>
+              <textarea class="form-textarea" placeholder=" "></textarea>
+            </div>
 
-              <!-- Follow-up Date -->
-              <div class="form-group span-2">
-                <div class="mat-field">
-                  <label class="form-label">Follow-up Date</label>
-                  <input type="date" class="form-input" placeholder=" ">
-                </div>
-              </div>
-
-              <!-- Assign Follow-up -->
-              <div class="form-group span-2">
-                <div class="mat-field">
-                  <label class="form-label">Assign Follow-up To</label>
-                  <select class="form-select">
-                    <option value="">Select user...</option>
-                    <option>Dr. Johnson</option>
-                    <option>A. Smith, RN</option>
-                    <option>Emily Rodriguez, PT</option>
-                    <option>James Wilson, MD</option>
-                  </select>
-                </div>
-              </div>
-
-              <!-- Checkboxes -->
-              <div class="form-group span-4">
-                <label class="checkbox-item">
-                  <input type="checkbox" id="followup-complete">
-                  <span class="checkbox-label">Mark follow-up as complete</span>
-                </label>
-
-                <label class="checkbox-item">
-                  <input type="checkbox" id="allow-web-access">
-                  <span class="checkbox-label">Allow web access</span>
-                </label>
+            <!-- Follow-up Date -->
+            <div class="mat-field">
+              <label class="form-label">Follow-up Date</label>
+              <div class="form-field-icon">
+                <input type="text" class="form-input" placeholder=" ">
+                <span class="material-icons field-icon">calendar_today</span>
               </div>
             </div>
+
+            <!-- Assign Follow-up -->
+            <div class="mat-field">
+              <label class="form-label">Assign Follow-up To</label>
+              <select class="form-select">
+                <option value="">Select user...</option>
+                <option>Dr. Johnson</option>
+                <option>A. Smith, RN</option>
+                <option>Emily Rodriguez, PT</option>
+                <option>James Wilson, MD</option>
+              </select>
+            </div>
+
+            <!-- Checkboxes -->
+            <label class="checkbox-item">
+              <input type="checkbox" id="followup-complete">
+              <span class="checkbox-label">Mark follow-up as complete</span>
+            </label>
+
+            <label class="checkbox-item">
+              <input type="checkbox" id="allow-web-access">
+              <span class="checkbox-label">Allow web access</span>
+            </label>
 
           </div>
         </div>
@@ -1025,27 +1240,138 @@
   </div>
 
   <script>
-    /* ═══ Initialize Date and Time ═══ */
+    /* ═══ Inline Editing Functions ═══ */
+    function toggleEditMode(sectionId) {
+      const section = document.getElementById(sectionId);
+      const list = section.querySelector('.summary-list');
+      const editBtn = section.querySelector('.edit-section-btn');
+      const editBtnText = editBtn.querySelector('.edit-btn-text');
+      const editBtnIcon = editBtn.querySelector('.material-icons');
+
+      section.classList.toggle('editing');
+
+      if (section.classList.contains('editing')) {
+        list.classList.add('editable');
+        editBtnText.textContent = 'Done';
+        editBtnIcon.textContent = 'check';
+      } else {
+        list.classList.remove('editable');
+        editBtnText.textContent = 'Edit';
+        editBtnIcon.textContent = 'edit';
+
+        // Cancel any items that are still in edit mode
+        const editingItems = list.querySelectorAll('li.editing');
+        editingItems.forEach(item => {
+          cancelEdit(item.querySelector('.item-action-btn.cancel'));
+        });
+      }
+    }
+
+    function saveItem(btn) {
+      const listItem = btn.closest('li');
+      const input = listItem.querySelector('.item-edit-field .form-input');
+      const textSpan = listItem.querySelector('.item-text');
+
+      textSpan.textContent = input.value;
+      listItem.classList.remove('editing');
+    }
+
+    function cancelEdit(btn) {
+      const listItem = btn.closest('li');
+      const input = listItem.querySelector('.item-edit-field .form-input');
+      const textSpan = listItem.querySelector('.item-text');
+
+      // Reset input to original value
+      input.value = textSpan.textContent;
+      listItem.classList.remove('editing');
+    }
+
+    function deleteItem(btn) {
+      if (confirm('Are you sure you want to delete this item?')) {
+        const listItem = btn.closest('li');
+        listItem.remove();
+      }
+    }
+
+    function addNewItem(listId) {
+      const list = document.getElementById(listId);
+
+      // Create new list item
+      const newItem = document.createElement('li');
+      newItem.classList.add('editing');
+      newItem.innerHTML = `
+        <span class="item-text"></span>
+        <div class="item-edit-field">
+          <div class="mat-field">
+            <label class="form-label">New Item</label>
+            <input type="text" class="form-input" value="" placeholder=" ">
+          </div>
+        </div>
+        <div class="item-actions">
+          <button class="item-action-btn save" onclick="saveNewItem(this)" title="Save">
+            <span class="material-icons">check</span>
+          </button>
+          <button class="item-action-btn cancel" onclick="cancelNewItem(this)" title="Cancel">
+            <span class="material-icons">close</span>
+          </button>
+          <button class="item-action-btn delete" onclick="deleteItem(this)" title="Delete">
+            <span class="material-icons">delete</span>
+          </button>
+        </div>
+      `;
+
+      list.appendChild(newItem);
+
+      // Focus the input
+      const input = newItem.querySelector('.item-edit-field .form-input');
+      input.focus();
+    }
+
+    function saveNewItem(btn) {
+      const listItem = btn.closest('li');
+      const input = listItem.querySelector('.item-edit-field .form-input');
+      const textSpan = listItem.querySelector('.item-text');
+
+      if (input.value.trim() === '') {
+        alert('Please enter a value for the new item.');
+        return;
+      }
+
+      textSpan.textContent = input.value;
+      listItem.classList.remove('editing');
+
+      // Update the save button's onclick to use regular saveItem
+      const saveBtn = listItem.querySelector('.item-action-btn.save');
+      saveBtn.setAttribute('onclick', 'saveItem(this)');
+    }
+
+    function cancelNewItem(btn) {
+      const listItem = btn.closest('li');
+      const input = listItem.querySelector('.item-edit-field .form-input');
+
+      // If the item is new and empty, remove it
+      if (input.value.trim() === '') {
+        listItem.remove();
+      } else {
+        // Otherwise treat it like a regular cancel
+        cancelEdit(btn);
+      }
+    }
+
+    // Add double-click to edit functionality
     document.addEventListener('DOMContentLoaded', function() {
-      // Set today's date as default and max
-      const dateInput = document.getElementById('date-entered');
-      const timeInput = document.getElementById('time-entered');
-
-      const today = new Date();
-      const year = today.getFullYear();
-      const month = String(today.getMonth() + 1).padStart(2, '0');
-      const day = String(today.getDate()).padStart(2, '0');
-      const todayString = `${year}-${month}-${day}`;
-
-      dateInput.value = todayString;
-      dateInput.max = todayString;
-
-      // Set current time as default
-      const hours = String(today.getHours()).padStart(2, '0');
-      const minutes = String(today.getMinutes()).padStart(2, '0');
-      const timeString = `${hours}:${minutes}`;
-
-      timeInput.value = timeString;
+      document.querySelectorAll('.summary-list li').forEach(item => {
+        item.addEventListener('dblclick', function(e) {
+          // Only allow editing if the section is in edit mode
+          const section = item.closest('.summary-section');
+          if (section.classList.contains('editing') && !item.classList.contains('editing')) {
+            item.classList.add('editing');
+            const input = item.querySelector('.item-edit-field .form-input');
+            input.focus();
+            input.select();
+          }
+        });
+      });
     });
 
     /* ═══ Footer Actions ═══ */
