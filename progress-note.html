@@ -526,6 +526,21 @@
 
     .btn-text-link:hover { text-decoration: underline; }
 
+    .btn-outlined {
+      background: var(--wsc-system-surface);
+      color: var(--wsc-system-primary);
+      border: 1.5px solid var(--wsc-system-primary);
+      padding: 8px 20px;
+      border-radius: var(--wsc-border-radius-md);
+      font-size: var(--wsc-system-typography-button-font-size);
+      font-weight: var(--wsc-system-typography-button-font-weight);
+      cursor: pointer;
+      letter-spacing: 0.3px;
+      transition: background var(--wsc-transition-fast);
+    }
+
+    .btn-outlined:hover { background: var(--wsc-system-primary-container); }
+
     .btn-primary {
       background: var(--wsc-system-primary);
       color: var(--wsc-system-on-primary);
@@ -644,9 +659,12 @@
 
       .footer-left, .footer-right { display: contents; }
       .form-footer .btn-primary { order: 1; }
-      .form-footer .btn-text-link { order: 2; }
+      .form-footer .btn-outlined:nth-of-type(3) { order: 2; } /* Save and Close */
+      .form-footer .btn-outlined:nth-of-type(2) { order: 3; } /* Print */
+      .form-footer .btn-text-link { order: 4; }
 
-      .form-footer .btn-primary {
+      .form-footer .btn-primary,
+      .form-footer .btn-outlined {
         width: 100%;
         min-height: 44px;
         justify-content: center;
@@ -865,7 +883,7 @@
         </div>
 
         <!-- Page Title -->
-        <h1 class="page-title">Discharge Progress Note</h1>
+        <h1 class="page-title">Progress Note</h1>
 
         <!-- Progress Note Details Card -->
         <div class="card">
@@ -875,9 +893,15 @@
           <div class="card-body">
             <div class="form-grid">
               <div class="form-group">
-                <div class="mat-field read-only">
-                  <label class="form-label">Entered By</label>
-                  <input type="text" class="form-input" value="Amanda Smith, RN" readonly>
+                <div class="mat-field">
+                  <label class="form-label">Subject *</label>
+                  <select class="form-select" id="subject" required>
+                    <option value="Patient Discharged" selected>Patient Discharged</option>
+                    <option value="Care Plan Review">Care Plan Review</option>
+                    <option value="Medication Changes">Medication Changes</option>
+                    <option value="Follow-up Required">Follow-up Required</option>
+                    <option value="Transfer of Care">Transfer of Care</option>
+                  </select>
                 </div>
               </div>
               <div class="form-group">
@@ -893,15 +917,9 @@
                 </div>
               </div>
               <div class="form-group">
-                <div class="mat-field">
-                  <label class="form-label">Subject *</label>
-                  <select class="form-select" id="subject" required>
-                    <option value="Patient Discharged" selected>Patient Discharged</option>
-                    <option value="Care Plan Review">Care Plan Review</option>
-                    <option value="Medication Changes">Medication Changes</option>
-                    <option value="Follow-up Required">Follow-up Required</option>
-                    <option value="Transfer of Care">Transfer of Care</option>
-                  </select>
+                <div class="mat-field read-only">
+                  <label class="form-label">Entered By</label>
+                  <input type="text" class="form-input" value="Amanda Smith, RN" readonly>
                 </div>
               </div>
             </div>
@@ -1033,10 +1051,12 @@
       <!-- ═══ STICKY FOOTER ═══ -->
       <div class="form-footer" id="form-footer">
         <div class="footer-left">
-          <button class="btn-text-link" onclick="goBack()">Back to Discharge</button>
+          <button class="btn-text-link" onclick="goBack()">Back to Patient Discharge</button>
         </div>
         <div class="footer-right">
-          <button class="btn-primary" onclick="dischargePatient()">Discharge Patient</button>
+          <button class="btn-outlined" onclick="printNote()">Print</button>
+          <button class="btn-outlined" onclick="saveAndClose()">Save and Close</button>
+          <button class="btn-primary" onclick="submitProgressNote()">Submit Progress Note</button>
         </div>
       </div>
 
@@ -1073,8 +1093,18 @@
       window.location.href = 'discharge-workflow.html';
     }
 
-    function dischargePatient() {
-      if (confirm('Are you ready to discharge this patient? This action will commit all documentation and trigger all selected discharge actions.')) {
+    function printNote() {
+      window.print();
+    }
+
+    function saveAndClose() {
+      // In production: POST to backend, save progress note without discharging patient
+      alert('Progress note saved successfully!');
+      window.location.href = 'discharge-workflow.html';
+    }
+
+    function submitProgressNote() {
+      if (confirm('Are you ready to submit this progress note and discharge the patient? This action will commit all documentation and trigger all selected discharge actions.')) {
         // In production: POST to backend, show success message, navigate to patient list
         alert('Patient discharged successfully! Progress note has been saved to the patient record.');
         window.location.href = '#'; // Simulated navigation to patient list
